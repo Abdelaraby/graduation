@@ -9,29 +9,38 @@ const Register = () => {
 
   const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // Get form data
+
     const formData = new FormData(e.currentTarget);
     const data = Object.fromEntries(formData);
-    // Check if form data is valid
+
     if (!checkRegisterFormData(data)) return;
 
-    // Check if user with this email already exists
-    const users = await customFetch.get("/users");
-    const userExists = users.data.some(
-      (user: { email: string }) => user.email === data.email
-    );
-    if (userExists) {
-      toast.error("User with this email already exists");
-      return;
-    }
+    try {
+      const response = await customFetch.post("/register", data);
+      const result = response.data;
 
-    // Register user
-    const response = await customFetch.post("/users", data);
-    if (response.status === 201) {
-      toast.success("User registered successfully");
+      if (!result.success) {
+        toast.error(result.errors || "An error occurred during registration");
+        return;
+      }
+
+      toast.success(result.message || "Registered successfully");
+
+      // Optional: Save token if needed
+      // localStorage.setItem("token", result.token);
+
       navigate("/login");
-    } else {
-      toast.error("An error occurred. Please try again");
+    } catch (error: any) {
+      if (error.response && error.response.data) {
+        const errorData = error.response.data;
+        if (!errorData.success && errorData.errors) {
+          toast.error(errorData.errors);
+        } else {
+          toast.error("Unexpected error. Please try again.");
+        }
+      } else {
+        toast.error("Network error. Please try again later.");
+      }
     }
   };
 
@@ -86,13 +95,13 @@ const Register = () => {
             />
           </div>
           <div className="flex flex-col gap-1">
-            <label htmlFor="confirmPassword">Confirm password</label>
+            <label htmlFor="password_confirmation">Confirm password</label>
             <input
               type="password"
               className="bg-white border border-black text-xl py-2 px-3 w-full outline-none max-[450px]:text-base"
               placeholder="Confirm password"
-              id="confirmPassword"
-              name="confirmPassword"
+              id="password_confirmation"
+              name="password_confirmation"
             />
           </div>
         </div>
@@ -108,4 +117,5 @@ const Register = () => {
     </div>
   );
 };
+
 export default Register;

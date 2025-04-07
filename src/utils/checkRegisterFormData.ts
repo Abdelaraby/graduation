@@ -15,7 +15,7 @@ export const checkRegisterFormData = (data: {
   } else if (data?.password === "") {
     toast.error("Please enter your password");
     return false;
-  } else if (data?.password !== data?.confirmPassword) {
+  } else if (data?.password !== data?.password_confirmation) {
     toast.error("Passwords do not match");
     return false;
   }
