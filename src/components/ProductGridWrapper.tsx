@@ -38,7 +38,7 @@ const ProductGridWrapper = ({
 }) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const { totalProducts } = useAppSelector((state) => state.shop);
+  // const { totalProducts } = useAppSelector((state) => state.shop);
   const dispatch = useAppDispatch();
 
   const getSearchedProducts = useCallback(async () => {

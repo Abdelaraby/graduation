@@ -22,8 +22,7 @@ const ProductItem = ({
   title,
   category,
   price,
-  popularity,
-  stock,
+  
 }: Product) => {
   const categoryValue =
     typeof category === "string" ? category : category?.name || "Unknown";
