@@ -1,47 +1,69 @@
-import {
-  Button,
-  Dropdown,
-  ProductItem,
-  QuantityInput,
-  StandardSelectInput,
-} from "../components";
-import { useParams } from "react-router-dom";
 import React, { useEffect, useState } from "react";
-import { addProductToTheCart } from "../features/cart/cartSlice";
+import { Button, ProductItem, QuantityInput, Dropdown } from "../components";
+import { useParams } from "react-router-dom";
 import { useAppDispatch } from "../hooks";
-import WithSelectInputWrapper from "../utils/withSelectInputWrapper";
+import { addProductToTheCart } from "../features/cart/cartSlice";
 import WithNumberInputWrapper from "../utils/withNumberInputWrapper";
 import { formatCategoryName } from "../utils/formatCategoryName";
 import toast from "react-hot-toast";
+import customFetch from "../axios/custom";
+
+interface Category {
+  id: number;
+  name: string;
+}
+
+interface Product {
+  id: number;
+  image_url: string;
+  title: string;
+  price: string;
+  category: Category | string; // دعم للحالتين
+  description: string;
+  popularity: number;
+  stock: number;
+}
 
 const SingleProduct = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [singleProduct, setSingleProduct] = useState<Product | null>(null);
-  // defining default values for input fields
-  const [size, setSize] = useState<string>("xs");
-  const [color, setColor] = useState<string>("black");
   const [quantity, setQuantity] = useState<number>(1);
+  const [isLoading, setIsLoading] = useState(true);
   const params = useParams<{ id: string }>();
   const dispatch = useAppDispatch();
 
-  // defining HOC instances
-  const SelectInputUpgrade = WithSelectInputWrapper(StandardSelectInput);
   const QuantityInputUpgrade = WithNumberInputWrapper(QuantityInput);
 
   useEffect(() => {
     const fetchSingleProduct = async () => {
-      const response = await fetch(
-        `http://localhost:3000/products/${params.id}`
-      );
-      const data = await response.json();
-      setSingleProduct(data);
+      setIsLoading(true);
+      try {
+        const response = await customFetch.get(`/products/${params.id}`);
+        const data = response.data.product;
+        setSingleProduct(data);
+      } catch (error: any) {
+        console.error("Error fetching single product:", error);
+        setSingleProduct(null);
+        if (error.response?.data?.message === "Product not found.") {
+          toast.error("Product not found.");
+        } else {
+          toast.error("Something went wrong. Please try again.");
+        }
+      } finally {
+        setIsLoading(false);
+      }
     };
 
     const fetchProducts = async () => {
-      const response = await fetch("http://localhost:3000/products");
-      const data = await response.json();
-      setProducts(data);
+      try {
+        const response = await customFetch.get("/products");
+        setProducts(response.data);
+      } catch (error) {
+        console.error("Error fetching products:", error);
+        setProducts([]);
+      }
     };
+
     fetchSingleProduct();
     fetchProducts();
   }, [params.id]);
@@ -50,14 +72,15 @@ const SingleProduct = () => {
     if (singleProduct) {
       dispatch(
         addProductToTheCart({
-          id: singleProduct.id + size + color,
-          image: singleProduct.image,
+          id: singleProduct.id.toString(),
+          image: singleProduct.image_url,
           title: singleProduct.title,
-          category: singleProduct.category,
-          price: singleProduct.price,
+          category:
+            typeof singleProduct.category === "string"
+              ? singleProduct.category
+              : singleProduct.category?.name || "Unknown",
+          price: parseFloat(singleProduct.price),
           quantity,
-          size,
-          color,
           popularity: singleProduct.popularity,
           stock: singleProduct.stock,
         })
@@ -66,115 +89,104 @@ const SingleProduct = () => {
     }
   };
 
+  if (isLoading) {
+    return <div className="text-center mt-10">Loading product...</div>;
+  }
+
+  if (!singleProduct) {
+    return <div className="text-center mt-10">Product not found.</div>;
+  }
+
   return (
-    <div className="max-w-screen-2xl mx-auto px-5 max-[400px]:px-3">
-      <div className="grid grid-cols-3 gap-x-8 max-lg:grid-cols-1">
-        <div className="lg:col-span-2">
+    <div className="max-w-screen-2xl mx-auto px-5 max-[400px]:px-3 py-10">
+    <div className="grid grid-cols-3 gap-x-8 max-lg:grid-cols-1">
+      {/* Image Section */}
+      <div className="lg:col-span-2 flex justify-center items-center">
+        <div className="w-full max-w-[600px] h-[450px] max-[400px]:h-[300px] overflow-hidden">
           <img
-            src={`/src/assets/${singleProduct?.image}`}
-            alt={singleProduct?.title}
+            src={singleProduct.image_url}
+            alt={singleProduct.title}
+            className="w-full h-full object-contain"
           />
         </div>
-        <div className="w-full flex flex-col gap-5 mt-9">
-          <div className="flex flex-col gap-2">
-            <h1 className="text-4xl">{singleProduct?.title}</h1>
-            <div className="flex justify-between items-center">
-              <p className="text-base text-secondaryBrown">
-                {formatCategoryName(singleProduct?.category || "")}
-              </p>
-              <p className="text-base font-bold">${ singleProduct?.price }</p>
-            </div>
-          </div>
-          <div className="flex flex-col gap-2">
-            <SelectInputUpgrade
-              selectList={[
-                { id: "xs", value: "XS" },
-                { id: "sm", value: "SM" },
-                { id: "m", value: "M" },
-                { id: "lg", value: "LG" },
-                { id: "xl", value: "XL" },
-                { id: "2xl", value: "2XL" },
-              ]}
-              value={size}
-              onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-                setSize(() => e.target.value)
-              }
-            />
-            <SelectInputUpgrade
-              selectList={[
-                { id: "black", value: "BLACK" },
-                { id: "red", value: "RED" },
-                { id: "blue", value: "BLUE" },
-                { id: "white", value: "WHITE" },
-                { id: "rose", value: "ROSE" },
-                { id: "green", value: "GREEN" },
-              ]}
-              value={color}
-              onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-                setColor(() => e.target.value)
-              }
-            />
-
-            <QuantityInputUpgrade
-              value={quantity}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setQuantity(() => parseInt(e.target.value))
-              }
-            />
-          </div>
-          <div className="flex flex-col gap-3">
-            <Button mode="brown" text="Add to cart" onClick={handleAddToCart} />
-            <p className="text-secondaryBrown text-sm text-right">
-              Delivery estimated on the Friday, July 26
+      </div>
+  
+      {/* Product Info Section */}
+      <div className="w-full flex flex-col gap-5 justify-center items-center max-lg:mt-6 px-6">
+        <div className="flex flex-col gap-2 w-full max-w-[400px]">
+          <h1 className="text-4xl">{singleProduct.title}</h1>
+          <div className="flex justify-between items-center">
+            <p className="text-base text-secondaryBrown">
+              {formatCategoryName(
+                typeof singleProduct.category === "string"
+                  ? singleProduct.category
+                  : singleProduct.category?.name || ""
+              )}
             </p>
-          </div>
-          <div>
-            {/* drowdown items */}
-            <Dropdown dropdownTitle="Description">
-              Lorem ipsum dolor, sit amet consectetur adipisicing elit. Labore
-              quos deleniti, mollitia, vitae harum suscipit voluptatem quasi, ab
-              assumenda accusantium rem praesentium accusamus quae quam tempore
-              nostrum corporis eaque. Mollitia.
-            </Dropdown>
-
-            <Dropdown dropdownTitle="Product Details">
-              Lorem ipsum dolor sit amet, consectetur adipisicing elit. Fuga ad
-              at odio illo, necessitatibus, reprehenderit dolore voluptas ea
-              consequuntur ducimus repellat soluta mollitia facere sapiente.
-              Unde provident possimus hic dolore.
-            </Dropdown>
-
-            <Dropdown dropdownTitle="Delivery Details">
-              Lorem ipsum dolor sit amet, consectetur adipisicing elit. Fuga ad
-              at odio illo, necessitatibus, reprehenderit dolore voluptas ea
-              consequuntur ducimus repellat soluta mollitia facere sapiente.
-              Unde provident possimus hic dolore.
-            </Dropdown>
+            <p className="text-base font-bold">${singleProduct.price}</p>
           </div>
         </div>
-      </div>
-
-      {/* similar products */}
-      <div>
-        <h2 className="text-black/90 text-5xl mt-24 mb-12 text-center max-lg:text-4xl">
-          Similar Products
-        </h2>
-        <div className="flex flex-wrap justify-between items-center gap-y-8 mt-12 max-xl:justify-start max-xl:gap-5 ">
-          {products.slice(0, 3).map((product: Product) => (
-            <ProductItem
-              key={product?.id}
-              id={product?.id}
-              image={product?.image}
-              title={product?.title}
-              category={product?.category}
-              price={product?.price}
-              popularity={product?.popularity}
-              stock={product?.stock}
-            />
-          ))}
+        <div className="flex flex-col gap-2 w-full max-w-[400px]">
+          <QuantityInputUpgrade
+            value={quantity}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              setQuantity(() => parseInt(e.target.value) || 1)
+            }
+          />
+        </div>
+        <div className="flex flex-col gap-3 w-full max-w-[400px]">
+          <Button mode="brown" text="Add to cart" onClick={handleAddToCart} />
+      
+        </div>
+        <div className="w-full max-w-[400px]">
+          <Dropdown dropdownTitle="Description">
+            {singleProduct.description || "No description available."}
+          </Dropdown>
+          <Dropdown dropdownTitle="Details">
+            <div className="flex flex-col gap-2">
+              <p className="text-secondaryBrown text-base font-bold">
+                Category:{" "}
+                {typeof singleProduct.category === "string"
+                  ? singleProduct.category
+                  : singleProduct.category?.name || ""}
+              </p>
+              <p className="text-secondaryBrown text-base font-bold">
+                Popularity: {singleProduct.popularity}
+              </p>
+              <p className="text-secondaryBrown text-base font-bold">
+                Stock: {singleProduct.stock}
+              </p>
+            </div>
+          </Dropdown>
         </div>
       </div>
     </div>
+  
+    <div>
+      <h2 className="text-black/90 text-5xl mt-24 mb-12 text-center max-lg:text-4xl">
+        Similar Products
+      </h2>
+      <div className="flex flex-wrap justify-between items-center gap-y-8 mt-12 max-xl:justify-start max-xl:gap-5">
+        {products.slice(0, 3).map((product: Product) => (
+          <ProductItem
+            key={product.id}
+            id={product.id.toString()}
+            image={product.image_url}
+            title={product.title}
+            category={
+              typeof product.category === "string"
+                ? product.category
+                : product.category?.name || "Unknown"
+            }
+            price={parseFloat(product.price)}
+            popularity={product.popularity}
+            stock={product.stock}
+          />
+        ))}
+      </div>
+    </div>
+  </div>
   );
 };
+
 export default SingleProduct;

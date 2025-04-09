@@ -11,8 +11,8 @@ interface Product {
 interface ProductInCart extends Product {
   id: string;
   quantity: number;
-  size: string;
-  color: string;
+  // size: string;
+  // color: string;
   stock: number;
 }
 
