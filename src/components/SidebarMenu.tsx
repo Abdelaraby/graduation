@@ -54,7 +54,7 @@ const SidebarMenu = ({
               to="/"
               className="text-4xl font-light tracking-[1.08px] max-sm:text-3xl max-[400px]:text-2xl"
             >
-              FASHION
+              DRescue
             </Link>
           </div>
           <div className="flex flex-col items-center gap-1 mt-7">
@@ -75,6 +75,13 @@ const SidebarMenu = ({
               className="py-2 border-y border-secondaryBrown w-full block flex justify-center"
             >
               Search
+            </Link>
+            {/* اللينك الجديد لصفحة Services */}
+            <Link
+              to="/services"
+              className="py-2 border-y border-secondaryBrown w-full block flex justify-center"
+            >
+              Services
             </Link>
             {loginStatus ? (
               <>

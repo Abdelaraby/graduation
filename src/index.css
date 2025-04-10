@@ -27,7 +27,6 @@ body {
       no-repeat;
 }
 
-/* Add these styles to your CSS file */
 .sidebar-enter {
   transform: translateX(-100%);
   transition: transform 0.3s ease-in-out;
@@ -43,11 +42,94 @@ body {
   transform: translateX(-100%);
 }
 
-
-.singleOrder-table td{
+.singleOrder-table td {
   text-align: left;
 }
 
-.singleOrder-table th{
+.singleOrder-table th {
   text-align: left;
+}
+
+/* Link styles with higher specificity */
+@layer base {
+  a {
+    color: black !important;
+    text-decoration: none !important;
+  }
+  /* Services Section */
+}.services-section {
+  padding: 60px 0;
+  background-color: #f9f9f9; /* خلفية بني فاتح كريمي */
+}
+
+.block-title {
+  margin-bottom: 30px;
+}
+
+.block-title h2 {
+  font-size: 32px;
+  font-weight: 700;
+  color: #895842; /* بني غامق بدل الأحمر */
+}
+
+.block-title small {
+  display: block;
+  font-size: 16px;
+  color: #8C7064; /* بني رمادي بدل الرمادي العادي */
+  margin-top: 5px;
+}
+
+.card {
+  background-color: #fff;
+  border: none;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  text-decoration: none;
+  color: inherit;
+}
+
+.card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.icon-circle {
+  width: 90px;
+  height: 90px;
+  margin-top: -45px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.head-icon {
+  color: #895842 /* بني متوسط للأيقونات */
+}
+
+.card-body {
+  padding: 20px;
+}
+
+.card-title {
+  font-size: 22px;
+  font-weight: 600;
+  color: #5C4033; /* بني غامق للعنوان */
+  margin-bottom: 15px;
+}
+
+.card-text {
+  font-size: 14px;
+  color: #8C7064; /* بني رمادي للنص الثانوي */
+  margin-bottom: 15px;
+}
+
+.text-sm.text-uppercase {
+  color: #8B4513; /* بني متوسط للرابط بدل الأحمر */
+  font-weight: 700;
+}
+
+.text-sm.text-uppercase i {
+  margin-left: 5px;
 }

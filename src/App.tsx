@@ -13,6 +13,7 @@ import {
   SingleOrderHistory,
   SingleProduct,
   UserProfile,
+  Services,
 } from "./pages";
 import { checkoutAction, searchAction } from "./actions/index";
 import { shopCategoryLoader } from "./pages/Shop";
@@ -81,14 +82,18 @@ const router = createBrowserRouter([
       {
         path: "order-history/:id",
         element: <SingleOrderHistory />,
-        loader: singleOrderLoader
+        loader: singleOrderLoader,
+      },
+      {
+        path: "services",
+        element: <Services />,
       },
     ],
   },
 ]);
 
-function App() {
+const App: React.FC = () => {
   return <RouterProvider router={router} />;
-}
+};
 
 export default App;
