@@ -14,6 +14,7 @@ import {
   SingleProduct,
   UserProfile,
   Services,
+  Contact, // ضيفنا ده
 } from "./pages";
 import { checkoutAction, searchAction } from "./actions/index";
 import { shopCategoryLoader } from "./pages/Shop";
@@ -87,6 +88,10 @@ const router = createBrowserRouter([
       {
         path: "services",
         element: <Services />,
+      },
+      {
+        path: "contact",
+        element: <Contact />, // الـ route الجديد
       },
     ],
   },

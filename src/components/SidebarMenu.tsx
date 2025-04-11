@@ -28,7 +28,7 @@ const SidebarMenu = ({
     if (isSidebarOpen) {
       setIsAnimating(true);
     } else {
-      const timer = setTimeout(() => setIsAnimating(false), 300); // Match the transition duration
+      const timer = setTimeout(() => setIsAnimating(false), 300);
       return () => clearTimeout(timer);
     }
   }, [isSidebarOpen]);
@@ -76,12 +76,17 @@ const SidebarMenu = ({
             >
               Search
             </Link>
-            {/* اللينك الجديد لصفحة Services */}
             <Link
               to="/services"
               className="py-2 border-y border-secondaryBrown w-full block flex justify-center"
             >
               Services
+            </Link>
+            <Link
+              to="/contact"
+              className="py-2 border-y border-secondaryBrown w-full block flex justify-center"
+            >
+              Contact
             </Link>
             {loginStatus ? (
               <>
@@ -120,4 +125,5 @@ const SidebarMenu = ({
     </>
   );
 };
+
 export default SidebarMenu;

@@ -12,3 +12,4 @@ export { default as UserProfile } from "./UserProfile";
 export { default as OrderHistory } from "./OrderHistory";
 export { default as SingleOrderHistory } from "./SingleOrderHistory";
 export { default as Services } from './Services';
+export { default as Contact } from "./Contact";
