@@ -1,52 +1,27 @@
-import { useState, useEffect } from "react";
+import { useOutletContext } from "react-router-dom";
 import CategoryItem from "./CategoryItem";
 
 interface Category {
   id: number;
   name: string;
   image: string;
-  created_at?: string; 
-  updated_at?: string; 
 }
 
-const CategoriesSection = () => {
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+const useLayoutContext = () => {
+  return useOutletContext<{ categories: Category[] }>();
+};
 
-  useEffect(() => {
-    setLoading(true);
-    fetch("http://127.0.0.1:8000/api/categories")
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-        return response.json();
-      })
-      .then((data) => {
-        console.log("API Response:", data);
-        setCategories(data.categories as Category[]); // نأخد الـ categories array من الـ response
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.error("Error fetching categories:", error);
-        setError(error.message);
-        setLoading(false);
-      });
-  }, []);
+const CategoriesSection = () => {
+  const { categories } = useLayoutContext();
 
   return (
     <div className="max-w-screen-2xl px-5 mx-auto mt-24">
-    <h2 className="text-black text-5xl font-normal tracking-[1.56px] max-sm:text-4xl mb-12 text-center">
-  Our Categories
-    </h2>
+      <h2 className="text-black text-5xl font-normal tracking-[1.56px] max-sm:text-4xl mb-12 text-center">
+        Our Categories
+      </h2>
       <div className="flex justify-between flex-wrap gap-y-10">
-        {loading ? (
-          <p>Loading categories...</p>
-        ) : error ? (
-          <p>Error: {error}</p>
-        ) : categories.length > 0 ? (
-          categories.map((category: Category) => (
+        {categories && categories.length > 0 ? (
+          categories.map((category) => (
             <CategoryItem
               key={category.id}
               categoryTitle={category.name}
