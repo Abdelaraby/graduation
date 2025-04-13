@@ -1,6 +1,6 @@
-import React, { ReactElement, useCallback, useEffect, useState } from "react";
-import customFetch from "../axios/custom";
-import { useAppDispatch, useAppSelector } from "../hooks";
+import React, { ReactElement } from "react";
+import { useOutletContext } from "react-router-dom";
+import { useAppDispatch } from "../hooks";
 import {
   setShowingProducts,
   setTotalProducts,
@@ -16,83 +16,32 @@ interface Product {
   image_url: string;
   title: string;
   price: string;
-  category: Category; // الـ category دلوقتي object
+  category: Category;
 }
 
+const useProductsFromLayout = () => {
+  return useOutletContext<{ products: Product[] }>();
+};
+
 const ProductGridWrapper = ({
-  searchQuery,
-  sortCriteria,
-  category,
-  page = 1,
-  limit = 9,
   children,
 }: {
-  searchQuery?: string;
-  sortCriteria?: string;
-  category?: string;
-  page?: number;
-  limit?: number;
   children:
     | ReactElement<{ products: Product[] }>
     | ReactElement<{ products: Product[] }>[];
 }) => {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  // const { totalProducts } = useAppSelector((state) => state.shop);
+  const { products } = useProductsFromLayout();
   const dispatch = useAppDispatch();
 
-  const getSearchedProducts = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const params: any = {
-        page,
-        limit,
-      };
-      if (searchQuery) params.search = searchQuery;
-      if (sortCriteria) params.sort = sortCriteria;
-      if (category) params.category_id = category;
-
-      const response = await customFetch.get("/products", { params });
-      console.log("API Response:", response.data);
-
-      const fetchedProducts: Product[] = response.data.data || response.data;
-
-      if (!Array.isArray(fetchedProducts)) {
-        throw new Error("Invalid API response: products is not an array");
-      }
-
-      const validProducts = fetchedProducts.filter(
-        (product) => product && typeof product.id !== "undefined"
-      );
-
-      if (response.data.meta?.total) {
-        dispatch(setTotalProducts(response.data.meta.total));
-      } else {
-        dispatch(setTotalProducts(validProducts.length));
-      }
-
-      setProducts(validProducts);
-      dispatch(setShowingProducts(validProducts.length));
-    } catch (error) {
-      console.error("Error fetching products:", error);
-      setProducts([]);
-      dispatch(setShowingProducts(0));
-    } finally {
-      setIsLoading(false);
+  React.useEffect(() => {
+    if (products && products.length) {
+      dispatch(setShowingProducts(products.length));
+      dispatch(setTotalProducts(products.length)); // or adjust based on meta
     }
-  }, [searchQuery, sortCriteria, category, page, limit, dispatch]);
-
-  useEffect(() => {
-    getSearchedProducts();
-  }, [getSearchedProducts]);
-
-  if (isLoading) {
-    return <div>Loading products...</div>;
-  }
+  }, [products, dispatch]);
 
   const childrenWithProps = React.Children.map(children, (child) => {
     if (React.isValidElement(child)) {
-      console.log("Passing products to children:", products);
       return React.cloneElement(child, { products });
     }
     return null;

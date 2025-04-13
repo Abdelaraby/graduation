@@ -1,31 +1,40 @@
+import React from "react";
 import { Link } from "react-router-dom";
 import Slider from "react-slick";
+import "slick-carousel/slick/slick.css"; // Required CSS [[4]]
+import "slick-carousel/slick/slick-theme.css"; // Required CSS [[4]]
 
-// بيانات الـ banners
+// Import images directly to ensure correct paths [[4]][[6]]
+import banner1 from "/src/assets/banner1.jpg";
+import banner2 from "/src/assets/banner.jpg";
+import banner3 from "/src/assets/banner1.png";
+
 const bannerData = [
   {
     title: "Discover the Best Fashion Collection",
     middleText: "Limited Time Offer",
     subtitle: "The High-Quality Collection",
-    background: "url('/src/assets/banner1.jpg')",
+    background: banner1, // Use imported image
   },
   {
     title: "Explore New Trends This Season",
     middleText: "Shop the Latest Styles",
     subtitle: "Exclusive Offers Await",
-    background: "url('/src/assets/banner2.jpg')",
+    background: banner2,
   },
   {
     title: "Upgrade Your Wardrobe Now",
     middleText: "New Arrivals Daily",
     subtitle: "Latest Styles Just for You",
-    background: "url('/src/assets/banner3.jpg')",
+    background: banner3,
   },
 ];
 
 const Banner = () => {
+  const sliderRef = React.useRef(null); // Stabilize Slider instance [[7]]
+
   const settings = {
-    dots: false, // شيلنا النقاط بتغييرها لـ false
+    dots: false,
     infinite: true,
     speed: 500,
     slidesToShow: 1,
@@ -33,16 +42,18 @@ const Banner = () => {
     autoplay: true,
     autoplaySpeed: 3000,
     arrows: false,
+    pauseOnHover: false,
+
   };
 
   return (
-    <Slider {...settings}>
+    <Slider ref={sliderRef} {...settings} key={bannerData.length}>
       {bannerData.map((banner, index) => (
         <div
           key={index}
           className="banner w-full flex flex-col justify-end items-center max-sm:h-[550px] max-sm:gap-2"
           style={{
-            background: `linear-gradient(0deg, rgba(0, 0, 0, 0.25) 0%, rgba(0, 0, 0, 0.15) 100%), ${banner.background} lightgray 50% / cover no-repeat`,
+            background: `linear-gradient(0deg, rgba(0, 0, 0, 0.25) 0%, rgba(0, 0, 0, 0.15) 100%), url(${banner.background}) lightgray 50% / cover no-repeat`,
             backgroundPosition: "10% 25%",
             backgroundSize: "cover",
             height: "700px",
