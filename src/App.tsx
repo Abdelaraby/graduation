@@ -23,6 +23,7 @@ import { loader as singleOrderLoader } from "./pages/SingleOrderHistory";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
+
 const router = createBrowserRouter([
   {
     path: "/",
