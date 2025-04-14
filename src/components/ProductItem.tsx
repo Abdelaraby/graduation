@@ -1,5 +1,5 @@
+import React from "react";
 import { Link } from "react-router-dom";
-import { formatCategoryName } from "../utils/formatCategoryName";
 
 interface Category {
   id: number;
@@ -10,7 +10,7 @@ interface Product {
   id: string;
   image: string;
   title: string;
-  category: string | Category; // دعم للحالتين
+  category: string | Category; // Support for both types
   price: number;
   popularity: number;
   stock: number;
@@ -22,44 +22,40 @@ const ProductItem = ({
   title,
   category,
   price,
-  
 }: Product) => {
   const categoryValue =
     typeof category === "string" ? category : category?.name || "Unknown";
 
   return (
-    <div className="w-[400px] flex flex-col gap-2 justify-center max-md:w-[300px]">
-      <Link
-        to={`/product/${id}`}
-        className="w-full h-[300px] max-md:h-[200px] overflow-hidden"
-      >
-        <img src={image} alt={title} className="w-full h-full object-cover" />
+    <div className="bg-white rounded-lg shadow-md overflow-hidden max-w-sm w-[300px]">
+      {/* Image */}
+      <Link to={`/product/${id}`}>
+        <img
+          src={image}
+          alt={title}
+          className="w-full h-64 object-cover"
+        />
       </Link>
-      <Link
-        to={`/product/${id}`}
-        className="text-black text-center text-3xl tracking-[1.02px] max-md:text-2xl"
-      >
-        <h2>{title}</h2>
-      </Link>
-      <p className="text-secondaryBrown text-lg tracking-wide text-center max-md:text-base">
-        {formatCategoryName(categoryValue)}
-      </p>
-      <p className="text-black text-2xl text-center font-bold max-md:text-xl">
-        ${price.toFixed(2)}
-      </p>
-      <div className="w-full flex flex-col gap-1">
-        <Link
-          to={`/product/${id}`}
-          className="text-white bg-secondaryBrown text-center text-xl font-normal tracking-[0.6px] leading-[72px] w-full h-12 flex items-center justify-center max-md:text-base"
+
+      {/* Product Details */}
+      <div className="p-4">
+        {/* Title */}
+        <p className="font-bold mb-2">{title}</p>
+
+        {/* Category */}
+        <p className="text-gray-500 text-sm mb-2">{categoryValue}</p>
+
+        {/* Price */}
+        <p className="text-[#8B0000] font-semibold mb-4">
+          ${price.toFixed(2)}
+        </p>
+
+        {/* Add to Cart Button */}
+        <button
+          className="w-full bg-black text-white py-2 px-4 rounded hover:bg-gray-800 transition-colors flex items-center justify-center"
         >
-          View product
-        </Link>
-        <Link
-          to={`/product/${id}`}
-          className="bg-white text-black text-center text-xl border border-[rgba(0, 0, 0, 0.40)] font-normal tracking-[0.6px] leading-[72px] w-full h-12 flex items-center justify-center max-md:text-base"
-        >
-          Learn more
-        </Link>
+          <span className="mr-2">+</span> ADD TO CART
+        </button>
       </div>
     </div>
   );

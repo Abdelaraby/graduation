@@ -5,6 +5,7 @@ import WithNumberInputWrapper from "../utils/withNumberInputWrapper";
 import { formatCategoryName } from "../utils/formatCategoryName";
 import toast from "react-hot-toast";
 import customFetch from "../axios/custom";
+import { Circles } from "react-loader-spinner";
 
 interface Category {
   id: number;
@@ -89,8 +90,13 @@ const SingleProduct = () => {
     }
   };
 
+  // Awesome Loading UI
   if (isLoading) {
-    return <div className="text-center mt-10">Loading product...</div>;
+    return (
+      <div className="h-screen flex items-center justify-center bg-gray-50">
+        <Circles color="#000000" height={80} width={80} />
+      </div>
+    );
   }
 
   if (!singleProduct) {

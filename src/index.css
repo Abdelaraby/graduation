@@ -8,14 +8,53 @@ body {
   font-family: "Merriweather", serif;
 }
 
-.banner {
+.banner-1 {
   height: 600px;
+
   background: linear-gradient(
       0deg,
       rgba(0, 0, 0, 0.25) 0%,
       rgba(0, 0, 0, 0.15) 100%
     ),
     url("/src/assets/banner1.jpg") lightgray 50% / cover no-repeat;
+    background-position: 10% 25%;
+
+}
+
+.banner-2 {
+  height: 600px;
+
+  background: linear-gradient(
+      0deg,
+      rgba(0, 0, 0, 0.25) 0%,
+      rgba(0, 0, 0, 0.15) 100%
+    ),
+    url("/src/assets/banner2.jpg") lightgray 50% / cover no-repeat;
+    background-position: 10% 25%;
+
+}
+
+.banner-3 {
+  height: 600px;
+
+  background: linear-gradient(
+      0deg,
+      rgba(0, 0, 0, 0.25) 0%,
+      rgba(0, 0, 0, 0.15) 100%
+    ),
+    url("/src/assets/banner3.jpg") lightgray 50% / cover no-repeat;
+    background-position: 10% 25%;
+
+}
+
+.banner {
+  height: 600px;
+  background: linear-gradient(
+      0deg,
+      rgba(0, 0, 0, 0.25) 0%,
+      rgba(0, 0, 0, 0.15) 100%
+    );
+    /* url("/src/assets/banner1.jpg") lightgray 50% / cover no-repeat; */
   background-position: 10% 25%;
 }
 
@@ -71,13 +110,13 @@ body {
 .block-title h2 {
   font-size: 32px;
   font-weight: 700;
-  color: #895842; /* بني غامق بدل الأحمر */
+  color: #ff0000; /* بني غامق بدل الأحمر */
 }
 
 .block-title small {
   display: block;
   font-size: 16px;
-  color: #8C7064; /* بني رمادي بدل الرمادي العادي */
+  color: #ff0000; /* بني رمادي بدل الرمادي العادي */
   margin-top: 5px;
 }
 
@@ -107,7 +146,7 @@ body {
 }
 
 .head-icon {
-  color: #895842 /* بني متوسط للأيقونات */
+  color: #ff0000 /* بني متوسط للأيقونات */
 }
 
 .card-body {
@@ -117,18 +156,18 @@ body {
 .card-title {
   font-size: 22px;
   font-weight: 600;
-  color: #5C4033; /* بني غامق للعنوان */
+  color: #ff0000; /* بني غامق للعنوان */
   margin-bottom: 15px;
 }
 
 .card-text {
   font-size: 14px;
-  color: #8C7064; /* بني رمادي للنص الثانوي */
+  color: #ff0000; /* بني رمادي للنص الثانوي */
   margin-bottom: 15px;
 }
 
 .text-sm.text-uppercase {
-  color: #8B4513; /* بني متوسط للرابط بدل الأحمر */
+  color: #ff0000; /* بني متوسط للرابط بدل الأحمر */
   font-weight: 700;
 }
 
@@ -214,12 +253,12 @@ body {
 }
 
 .text-colored {
-  color: #8B8577; /* اللون الجديد للأيقونات */
+  color: #ff0000; /* اللون الجديد للأيقونات */
 }
 
 .btn-primary {
-  background-color: #8B8577!important;
-  border: 1px solid #8B8577 !important;
+  background-color: #ff0000!important;
+  border: 1px solid #ff0000 !important;
   color: white;
   padding: 6px 12px;
   cursor: pointer;
@@ -227,8 +266,8 @@ body {
 .btn-primary:hover,
 .btn-primary:focus,
 .btn-primary:active {
-  background-color: #8B8577 !important;
-  border: 1px solid #8B8577 !important;
+  background-color: #ff0000 !important;
+  border: 1px solid #ff0000 !important;
 }
 
 .btn-shadow {
@@ -300,3 +339,17 @@ body {
     margin: 10px 0;
   }
 }
+
+.hover-effect:hover {
+  transform: scale(1.05);
+  transition: transform 0.3s ease-in-out;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+

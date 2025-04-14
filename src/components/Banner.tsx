@@ -1,13 +1,13 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import Slider from "react-slick";
-import "slick-carousel/slick/slick.css"; // Required CSS [[4]]
-import "slick-carousel/slick/slick-theme.css"; // Required CSS [[4]]
+import "slick-carousel/slick/slick.css"; // Required CSS
+import "slick-carousel/slick/slick-theme.css"; // Required CSS
 
-// Import images directly to ensure correct paths [[4]][[6]]
-import banner1 from "/src/assets/banner1.jpg";
-import banner2 from "/src/assets/banner.jpg";
-import banner3 from "/src/assets/banner1.png";
+// Import images directly
+import banner1 from "../assets/banner1.jpg"; // Adjust the path based on your folder structure
+import banner2 from "../assets/banner2.jpg";
+import banner3 from "../assets/banner3.jpg";
 
 const bannerData = [
   {
@@ -31,7 +31,7 @@ const bannerData = [
 ];
 
 const Banner = () => {
-  const sliderRef = React.useRef(null); // Stabilize Slider instance [[7]]
+  const sliderRef = React.useRef(null);
 
   const settings = {
     dots: false,
@@ -43,24 +43,23 @@ const Banner = () => {
     autoplaySpeed: 3000,
     arrows: false,
     pauseOnHover: false,
-
   };
 
+   
   return (
     <Slider ref={sliderRef} {...settings} key={bannerData.length}>
       {bannerData.map((banner, index) => (
-        <div
-          key={index}
-          className="banner w-full flex flex-col justify-end items-center max-sm:h-[550px] max-sm:gap-2"
-          style={{
-            background: `linear-gradient(0deg, rgba(0, 0, 0, 0.25) 0%, rgba(0, 0, 0, 0.15) 100%), url(${banner.background}) lightgray 50% / cover no-repeat`,
-            backgroundPosition: "10% 25%",
-            backgroundSize: "cover",
-            height: "700px",
-            maxHeight: "100vh",
-          }}
-        >
-          <div className="flex flex-col items-center text-center pt-80 pb-8 max-w-[1200px] mx-auto px-10">
+         <div
+         key={index}
+         className={`w-full flex flex-col justify-end items-center max-sm:h-[550px] max-sm:gap-2 ${
+           index == 0 ? "banner-1" : index == 1 ? "banner-2" : "banner-3"
+         }`}
+         style={{
+           height: "700px",
+           maxHeight: "100vh",
+         }}
+       >
+          {/* <div className="flex flex-col items-center text-center pt-80 pb-8 max-w-[1200px] mx-auto px-10">
             <h2 className="text-white text-5xl font-bold tracking-[1.5px] leading-[50px] max-sm:text-3xl max-[400px]:text-2xl">
               {banner.title}
             </h2>
@@ -84,7 +83,7 @@ const Banner = () => {
                 See Collection
               </Link>
             </div>
-          </div>
+          </div> */}
         </div>
       ))}
     </Slider>
