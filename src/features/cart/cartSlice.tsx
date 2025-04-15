@@ -1,5 +1,16 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
+interface ProductInCart {
+  id: string;
+  user_id?: number;
+  product_id: string;
+  title: string;
+  price: number;
+  quantity: number;
+  image: string | null;
+  stock: boolean;
+}
+
 type CartState = {
   productsInCart: ProductInCart[];
   subtotal: number;
@@ -12,7 +23,6 @@ const initialState: CartState = {
 
 export const cartSlice = createSlice({
   name: "cart",
-  // `createSlice` will infer the state type from the `initialState` argument
   initialState,
   reducers: {
     addProductToTheCart: (state, action: PayloadAction<ProductInCart>) => {
@@ -64,6 +74,10 @@ export const cartSlice = createSlice({
         0
       );
     },
+    clearCart: (state) => {
+      state.productsInCart = [];
+      state.subtotal = 0;
+    },
   },
 });
 
@@ -72,6 +86,7 @@ export const {
   removeProductFromTheCart,
   updateProductQuantity,
   calculateTotalPrice,
+  clearCart,
 } = cartSlice.actions;
 
 export default cartSlice.reducer;

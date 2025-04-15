@@ -2,24 +2,15 @@ import React, { useState } from "react";
 import { HiTrash as TrashIcon } from "react-icons/hi2";
 import { Button } from "../components";
 import { useAppDispatch, useAppSelector } from "../hooks";
-import { removeProductFromTheCart } from "../features/cart/cartSlice";
+import { removeProductFromTheCart, clearCart } from "../features/cart/cartSlice";
 import customFetch from "../axios/custom";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { checkCheckoutFormData } from "../utils/checkCheckoutFormData";
-import LocationPicker from "../components/LocationPicker"; // تأكدي من صحة المسار
-
-/*
-ملاحظة: دالة checkCheckoutFormData تتوقع بيانات النموذج بالشكل:
-{
-  data: { [key: string]: FormDataEntryValue },
-  products: any[],
-  subtotal: number
-}
-*/
+import LocationPicker from "../components/LocationPicker";
 
 const paymentMethods = [
-  { id: "paypal", title: "PayPal" },
+  { id: "paymob", title: "Paymob (Card)" },
   { id: "cash", title: "Cash" },
 ];
 
@@ -28,23 +19,18 @@ const Checkout: React.FC = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
-  // حالة لتخزين موقع المستخدم الذي يختاره (عن طريق الخريطة أو الموقع الحالي)
   const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
-  // حالة لتعطيل زر الإرسال أثناء العملية
   const [isSubmitting, setIsSubmitting] = useState(false);
-  // حالة لتخزين طريقة الدفع المختارة
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("paypal");
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("paymob");
 
-  // حالة لتخزين بيانات العنوان التي سيتم تعبئتها تلقائيًا
   const [addressData, setAddressData] = useState({
     address: "",
     city: "",
     country: "",
     region: "",
-    postalCode: "",
+    postal_code: "",
   });
 
-  // دالة تحديث بيانات العنوان باستخدام reverse geocoding (OpenStreetMap Nominatim)
   const fetchAddressFromCoordinates = async (lat: number, lng: number) => {
     try {
       const res = await fetch(
@@ -57,15 +43,15 @@ const Checkout: React.FC = () => {
         city: addr.city || addr.town || addr.village || "",
         country: addr.country || "",
         region: addr.state || "",
-        postalCode: addr.postcode || "",
+        postal_code: addr.postcode || "",
       });
+      toast.success("تم استرجاع العنوان بنجاح");
     } catch (error) {
       console.error("Reverse geocoding error:", error);
-      toast.error("Unable to fetch address from the selected location");
+      toast.error("تعذر استرجاع العنوان من الموقع المحدد");
     }
   };
 
-  // دالة تستخدم Geolocation API للحصول على الموقع الحالي
   const handleGetCurrentLocation = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -77,77 +63,100 @@ const Checkout: React.FC = () => {
         },
         (error) => {
           console.error("Geolocation error:", error);
-          toast.error("Unable to retrieve your current location");
+          toast.error("تعذر استرجاع موقعك الحالي");
         }
       );
     } else {
-      toast.error("Geolocation is not supported by your browser");
+      toast.error("المتصفح لا يدعم تحديد الموقع");
     }
   };
 
-  // دالة استدعاء عند اختيار الموقع من الخريطة (في حال المستخدم يختار يدويًا)
   const handleLocationSelected = async (lat: number, lng: number) => {
     setLocation({ lat, lng });
     await fetchAddressFromCoordinates(lat, lng);
   };
 
-  // دالة إرسال النموذج
   const handleCheckoutSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const formEntries = Object.fromEntries(formData);
 
-    const enrichedData = {
-      ...formEntries,
-      latitude: location ? location.lat.toString() : "",
-      longitude: location ? location.lng.toString() : "",
-      // تعبئة بيانات العنوان من الحالة
+    // إنشاء بيانات الطلب
+    const checkoutData = {
+      email_address: formEntries.email_address as string,
       address: addressData.address,
       city: addressData.city,
       country: addressData.country,
       region: addressData.region,
-      postalCode: addressData.postalCode,
+      postal_code: addressData.postal_code,
+      phone: formEntries.phone as string,
+      payment_type: selectedPaymentMethod,
+      subtotal: Number(subtotal),
+      products: productsInCart.map((product) => ({ id: Number(product.id) })),
+      latitude: location ? location.lat.toString() : "",
+      longitude: location ? location.lng.toString() : "",
+      amount: Number(subtotal) + (subtotal ? 5 + Number(subtotal) / 5 : 0),
     };
 
-    const checkoutData = {
-      data: enrichedData,
-      products: productsInCart,
-      subtotal: subtotal,
-    };
+    // التحقق من البيانات
+    if (!checkCheckoutFormData(checkoutData)) {
+      return;
+    }
 
-    if (!checkCheckoutFormData(checkoutData)) return;
+    if (productsInCart.length === 0) {
+      toast.error("السلة فاضية، أضف منتجات قبل المتابعة");
+      return;
+    }
+
+    // تحقق إضافي لضمان إن الموقع مختار
+    if (!location) {
+      toast.error("من فضلك اختر موقعًا من الخريطة");
+      return;
+    }
 
     setIsSubmitting(true);
-    try {
-      let response;
-      const user = JSON.parse(localStorage.getItem("user") || "{}");
-      if (user.email) {
-        response = await customFetch.post("/orders", {
-          ...checkoutData,
-          user: {
-            email: user.email,
-            id: user.id,
-          },
-          orderStatus: "Processing",
-          orderDate: new Date().toISOString(),
-        });
-      } else {
-        response = await customFetch.post("/orders", {
-          ...checkoutData,
-          orderStatus: "Processing",
-          orderDate: new Date().toLocaleDateString(),
-        });
-      }
 
-      if (response.status === 201) {
-        toast.success("Order has been placed successfully");
-        navigate("/order-confirmation");
-      } else {
-        toast.error("Something went wrong, please try again later");
+    try {
+      if (selectedPaymentMethod === "paymob") {
+        const response = await customFetch.post("/generatePaymentKey", checkoutData);
+        const { payment_key, order_id } = response.data;
+
+        if (!payment_key) {
+          throw new Error("مفتاح الدفع غير متوفر");
+        }
+
+        const iframeId = process.env.REACT_APP_PAYMOB_IFRAME_ID;
+        if (!iframeId) {
+          console.warn("تحذير: Paymob Iframe ID غير معرّف");
+          throw new Error("إعدادات Paymob غير مكتملة");
+        }
+
+        const iframeURL = `https://accept.paymob.com/api/acceptance/iframes/${iframeId}?payment_token=${payment_key}`;
+        window.location.href = iframeURL;
+      } else if (selectedPaymentMethod === "cash") {
+        const response = await customFetch.post("/orders", checkoutData);
+
+        if (response.data.success && response.status === 201) {
+          toast.success("تم تسجيل الطلب بنجاح");
+          dispatch(clearCart());
+          navigate("/order-confirmation", { state: { orderId: response.data.order_id } });
+        } else {
+          throw new Error(response.data.message || "فشل تسجيل الطلب");
+        }
       }
-    } catch (error) {
-      console.error("Checkout error:", error);
-      toast.error("Server error, please try again later");
+    } catch (error: unknown) {
+      console.error("خطأ في الدفع:", error);
+      let errorMessage = "حصل خطأ، حاول مرة أخرى";
+      if (error instanceof Error && error.message) {
+        errorMessage = error.message;
+      } else if (typeof error === "object" && error !== null && "response" in error) {
+        const axiosError = error as any;
+        errorMessage =
+          axiosError.response?.data?.message ||
+          axiosError.response?.data?.errors?.[0] ||
+          errorMessage;
+      }
+      toast.error(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -162,14 +171,11 @@ const Checkout: React.FC = () => {
           className="lg:grid lg:grid-cols-2 lg:gap-x-12 xl:gap-x-16"
         >
           <div>
-            {/* Contact Information */}
             <div>
-              <h2 className="text-lg font-medium text-gray-900">
-                Contact information
-              </h2>
+              <h2 className="text-lg font-medium text-gray-900">Contact information</h2>
               <div className="mt-4">
                 <label
-                  htmlFor="email-address"
+                  htmlFor="email_address"
                   className="block text-sm font-medium text-gray-700"
                 >
                   Email address
@@ -177,8 +183,8 @@ const Checkout: React.FC = () => {
                 <div className="mt-1">
                   <input
                     type="email"
-                    id="email-address"
-                    name="emailAddress"
+                    id="email_address"
+                    name="email_address"
                     autoComplete="email"
                     className="block w-full py-2 indent-2 border-gray-300 outline-none focus:border-gray-400 border shadow-sm sm:text-sm"
                     required
@@ -187,12 +193,8 @@ const Checkout: React.FC = () => {
               </div>
             </div>
 
-            {/* Shipping Information */}
             <div className="mt-10 border-t border-gray-200 pt-10">
-              <h2 className="text-lg font-medium text-gray-900">
-                Shipping information
-              </h2>
-              {/* زر لاستخدام الموقع الحالي */}
+              <h2 className="text-lg font-medium text-gray-900">Shipping information</h2>
               <div className="mt-4">
                 <Button
                   text="Use my current location"
@@ -263,7 +265,7 @@ const Checkout: React.FC = () => {
                         setAddressData({ ...addressData, country: e.target.value })
                       }
                       autoComplete="country-name"
-                      className="block w-full py-2 indent-2 border-gray-300 outline-none focus:border-gray-400 border shadow-sm sm:text-sm"
+                      className="block w/full py-2 indent-2 border-gray-300 outline-none focus:border-gray-400 border shadow-sm sm:text-sm"
                       required
                     />
                   </div>
@@ -292,7 +294,7 @@ const Checkout: React.FC = () => {
                 </div>
                 <div>
                   <label
-                    htmlFor="postal-code"
+                    htmlFor="postal_code"
                     className="block text-sm font-medium text-gray-700"
                   >
                     Postal code
@@ -300,11 +302,11 @@ const Checkout: React.FC = () => {
                   <div className="mt-1">
                     <input
                       type="text"
-                      id="postal-code"
-                      name="postalCode"
-                      value={addressData.postalCode}
+                      id="postal_code"
+                      name="postal_code"
+                      value={addressData.postal_code}
                       onChange={(e) =>
-                        setAddressData({ ...addressData, postalCode: e.target.value })
+                        setAddressData({ ...addressData, postal_code: e.target.value })
                       }
                       autoComplete="postal-code"
                       className="block w-full py-2 indent-2 border-gray-300 outline-none focus:border-gray-400 border shadow-sm sm:text-sm"
@@ -333,7 +335,6 @@ const Checkout: React.FC = () => {
               </div>
             </div>
 
-            {/* Payment Information */}
             <div className="mt-10 border-t border-gray-200 pt-10">
               <h2 className="text-lg font-medium text-gray-900">Payment</h2>
               <fieldset className="mt-4">
@@ -343,7 +344,7 @@ const Checkout: React.FC = () => {
                     <div key={paymentMethod.id} className="flex items-center">
                       <input
                         id={paymentMethod.id}
-                        name="paymentType"
+                        name="payment_type"
                         type="radio"
                         value={paymentMethod.id}
                         checked={selectedPaymentMethod === paymentMethod.id}
@@ -361,92 +362,19 @@ const Checkout: React.FC = () => {
                 </div>
               </fieldset>
 
-              {/* Conditionally render PayPal input fields */}
-              {selectedPaymentMethod === "paypal" && (
-                <div className="mt-6 grid grid-cols-4 gap-x-4 gap-y-6">
-                  <div className="col-span-4">
-                    <label
-                      htmlFor="card-number"
-                      className="block text-sm font-medium text-gray-700"
-                    >
-                      Card number
-                    </label>
-                    <div className="mt-1">
-                      <input
-                        type="text"
-                        id="card-number"
-                        name="cardNumber"
-                        autoComplete="cc-number"
-                        className="block w-full py-2 indent-2 border-gray-300 outline-none focus:border-gray-400 border shadow-sm sm:text-sm"
-                        required
-                      />
-                    </div>
-                  </div>
-                  <div className="col-span-4">
-                    <label
-                      htmlFor="name-on-card"
-                      className="block text-sm font-medium text-gray-700"
-                    >
-                      Name on card
-                    </label>
-                    <div className="mt-1">
-                      <input
-                        type="text"
-                        id="name-on-card"
-                        name="nameOnCard"
-                        autoComplete="cc-name"
-                        className="block w-full py-2 indent-2 border-gray-300 outline-none focus:border-gray-400 border shadow-sm sm:text-sm"
-                        required
-                      />
-                    </div>
-                  </div>
-                  <div className="col-span-3">
-                    <label
-                      htmlFor="expiration-date"
-                      className="block text-sm font-medium text-gray-700"
-                    >
-                      Expiration date (MM/YY)
-                    </label>
-                    <div className="mt-1">
-                      <input
-                        type="text"
-                        name="expirationDate"
-                        id="expiration-date"
-                        autoComplete="cc-exp"
-                        className="block w-full py-2 indent-2 border-gray-300 outline-none focus:border-gray-400 border shadow-sm sm:text-sm"
-                        required
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <label
-                      htmlFor="cvc"
-                      className="block text-sm font-medium text-gray-700"
-                    >
-                      CVC
-                    </label>
-                    <div className="mt-1">
-                      <input
-                        type="text"
-                        name="cvc"
-                        id="cvc"
-                        autoComplete="csc"
-                        className="block w-full py-2 indent-2 border-gray-300 outline-none focus:border-gray-400 border shadow-sm sm:text-sm"
-                        required
-                      />
-                    </div>
-                  </div>
-                </div>
-              )}
               {selectedPaymentMethod === "cash" && (
                 <p className="mt-6 text-sm text-gray-600">
-                  Payment will be collected on delivery.
+                  سيتم جمع الدفع عند التسليم.
                 </p>
               )}
             </div>
+
+            <div className="mt-10 border-t border-gray-200 pt-10">
+              <h2 className="text-lg font-medium text-gray-900">Select Location</h2>
+              <LocationPicker onLocationSelected={handleLocationSelected} />
+            </div>
           </div>
 
-          {/* Order Summary */}
           <div className="mt-10 lg:mt-0">
             <h2 className="text-lg font-medium text-gray-900">Order summary</h2>
             <div className="mt-4 border border-gray-200 bg-white shadow-sm">
@@ -456,9 +384,12 @@ const Checkout: React.FC = () => {
                   <li key={product?.id} className="flex px-4 py-6 sm:px-6">
                     <div className="flex-shrink-0">
                       <img
-                        src={`/src/assets/${product?.image}`}
+                        src={product?.image || "/src/assets/placeholder.png"}
                         alt={product?.title}
-                        className="w-20 rounded-md"
+                        className="w-20 h-20 object-cover object-center rounded-md"
+                        onError={(e) => {
+                          e.currentTarget.src = "/src/assets/placeholder.png";
+                        }}
                       />
                     </div>
                     <div className="ml-6 flex flex-1 flex-col">
@@ -483,7 +414,7 @@ const Checkout: React.FC = () => {
                       </div>
                       <div className="flex flex-1 items-end justify-between pt-2">
                         <p className="mt-1 text-sm font-medium text-gray-900">
-                          ${product?.price}
+                          ${Number(product?.price).toFixed(2)}
                         </p>
                         <div className="ml-4">
                           <p className="text-base">
@@ -498,7 +429,7 @@ const Checkout: React.FC = () => {
               <dl className="space-y-6 border-t border-gray-200 px-4 py-6 sm:px-6">
                 <div className="flex items-center justify-between">
                   <dt className="text-sm">Subtotal</dt>
-                  <dd className="text-sm font-medium text-gray-900">${subtotal}</dd>
+                  <dd className="text-sm font-medium text-gray-900">${Number(subtotal).toFixed(2)}</dd>
                 </div>
                 <div className="flex items-center justify-between">
                   <dt className="text-sm">Shipping</dt>
@@ -507,22 +438,22 @@ const Checkout: React.FC = () => {
                 <div className="flex items-center justify-between">
                   <dt className="text-sm">Taxes</dt>
                   <dd className="text-sm font-medium text-gray-900">
-                    ${subtotal ? subtotal / 5 : 0}
+                    ${subtotal ? (Number(subtotal) / 5).toFixed(2) : 0}
                   </dd>
                 </div>
                 <div className="flex items-center justify-between border-t border-gray-200 pt-6">
                   <dt className="text-base font-medium">Total</dt>
                   <dd className="text-base font-medium text-gray-900">
-                    ${subtotal ? subtotal + 5 + subtotal / 5 : 0}
+                    ${(subtotal ? Number(subtotal) + 5 + Number(subtotal) / 5 : 0).toFixed(2)}
                   </dd>
                 </div>
               </dl>
               <div className="border-t border-gray-200 px-4 py-6 sm:px-6">
                 <Button
-                  text={isSubmitting ? "Placing Order..." : "Confirm Order"}
+                  text={isSubmitting ? "جاري المعالجة..." : "تأكيد الطلب"}
                   mode="brown"
                   type="submit"
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || productsInCart.length === 0}
                 />
               </div>
             </div>

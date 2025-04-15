@@ -1,71 +1,64 @@
 import toast from "react-hot-toast";
 
 export const checkCheckoutFormData = (checkoutData: {
-  data: {
-    [k: string]: FormDataEntryValue;
-  };
-  products: any[];
+  email_address: string;
+  address: string;
+  city: string;
+  country: string;
+  region: string;
+  postal_code: string;
+  phone: string;
+  payment_type: string;
   subtotal: number;
-}) => {
-  if (!checkoutData.data?.address || checkoutData.data.address === "") {
-    toast.error("العنوان مطلوب");
-    return false;
-  }
-  if (!checkoutData.data?.city || checkoutData.data.city === "") {
-    toast.error("المدينة مطلوبة");
-    return false;
-  }
-  if (!checkoutData.data?.country || checkoutData.data.country === "") {
-    toast.error("الدولة مطلوبة");
-    return false;
-  }
-  if (!checkoutData.data?.latitude || !checkoutData.data?.longitude) {
-    toast.error("من فضلك اختاري مكان من الخريطة");
-    return false;
-  }
-  if (checkoutData.data?.cardNumber === "") {
-    toast.error("رقم الكارت مطلوب");
-    return false;
-  }
-  if (checkoutData.data?.cvc === "") {
-    toast.error("رقم CVC مطلوب");
-    return false;
-  }
-  if (checkoutData.data?.emailAddress === "") {
+  products: { id: number }[];
+  latitude: string;
+  longitude: string;
+  amount: number;
+}): boolean => {
+  if (!checkoutData.email_address) {
     toast.error("البريد الإلكتروني مطلوب");
     return false;
   }
-  if (checkoutData.data?.expirationDate === "") {
-    toast.error("تاريخ انتهاء الصلاحية مطلوب");
+  if (!checkoutData.address) {
+    toast.error("العنوان مطلوب");
     return false;
   }
-  if (checkoutData.data?.firstName === "") {
-    toast.error("الاسم الأول مطلوب");
+  if (!checkoutData.city) {
+    toast.error("المدينة مطلوبة");
     return false;
   }
-  if (checkoutData.data?.lastName === "") {
-    toast.error("اسم العائلة مطلوب");
+  if (!checkoutData.country) {
+    toast.error("الدولة مطلوبة");
     return false;
   }
-  if (checkoutData.data?.nameOnCard === "") {
-    toast.error("الاسم على الكارت مطلوب");
+  if (!checkoutData.region) {
+    toast.error("المنطقة/المحافظة مطلوبة");
     return false;
   }
-  if (checkoutData.data?.paymentType === "") {
-    toast.error("نوع الدفع مطلوب");
+  if (!checkoutData.postal_code) {
+    toast.error("الرمز البريدي مطلوب");
     return false;
   }
-  if (checkoutData.data?.phone === "") {
+  if (!checkoutData.phone) {
     toast.error("رقم الهاتف مطلوب");
     return false;
   }
-  if (checkoutData?.products.length === 0) {
-    toast.error("لازم تختاري منتجات");
+  if (!checkoutData.payment_type) {
+    toast.error("نوع الدفع مطلوب");
     return false;
   }
-  if (checkoutData?.subtotal === 0) {
-    toast.error("الإجمالي مطلوب");
+  if (checkoutData.products.length === 0) {
+    toast.error("يجب اختيار منتجات");
     return false;
   }
+  if (checkoutData.subtotal <= 0) {
+    toast.error("المجموع الفرعي يجب أن يكون أكبر من صفر");
+    return false;
+  }
+  if (!checkoutData.latitude || !checkoutData.longitude) {
+    toast.error("من فضلك اختر مكانًا من الخريطة");
+    return false;
+  }
+
   return true;
 };

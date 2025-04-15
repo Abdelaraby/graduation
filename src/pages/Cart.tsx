@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import customFetch from "../axios/custom";
 import toast from "react-hot-toast";
 import {
@@ -7,9 +7,10 @@ import {
   HiQuestionMarkCircle as QuestionMarkCircleIcon,
 } from "react-icons/hi2";
 import { Link, useNavigate } from "react-router-dom";
-import { useAppSelector } from "../hooks";
+import { useAppSelector, useAppDispatch } from "../hooks";
+import { updateProductQuantity, removeProductFromTheCart, clearCart, addProductToTheCart } from "../features/cart/cartSlice";
 
-type CartProduct = {
+interface CartProduct {
   id: string;
   user_id: number;
   product_id: string;
@@ -18,12 +19,12 @@ type CartProduct = {
   quantity: number;
   image: string | null;
   stock: boolean;
-};
+}
 
 const Cart = () => {
-  const [productsInCart, setProductsInCart] = useState<CartProduct[]>([]);
-  const [subtotal, setSubtotal] = useState(0);
+  const { productsInCart, subtotal } = useAppSelector((state) => state.cart);
   const { loginStatus, token } = useAppSelector((state) => state.auth);
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -38,8 +39,12 @@ const Cart = () => {
     try {
       const response = await customFetch.get("/cart");
       if (response.data.success) {
-        setProductsInCart(response.data.productsInCart || []);
-        setSubtotal(response.data.subtotal || 0);
+        // Clear the existing cart to avoid duplicates
+        dispatch(clearCart());
+        // Add each product to the Redux store
+        response.data.productsInCart.forEach((product: CartProduct) => {
+          dispatch(addProductToTheCart(product));
+        });
       } else {
         toast.error(response.data.message);
       }
@@ -53,13 +58,8 @@ const Cart = () => {
     try {
       const response = await customFetch.delete(`/cart/${id}`);
       if (response.data.success) {
-        const updatedProducts = productsInCart.filter((product) => product.id !== id);
-        setProductsInCart(updatedProducts);
-        setSubtotal(
-          updatedProducts.reduce((acc, product) => acc + product.price * product.quantity, 0)
-        );
+        dispatch(removeProductFromTheCart({ id }));
         toast.success("Product removed from the cart");
-        await fetchCart(); // optional
       } else {
         toast.error(response.data.message);
       }
@@ -69,10 +69,14 @@ const Cart = () => {
   };
 
   const handleUpdateQuantity = async (id: string, quantity: number) => {
+    if (quantity < 1) {
+      toast.error("Quantity must be at least 1");
+      return;
+    }
     try {
       const response = await customFetch.put(`/cart/${id}`, { quantity });
       if (response.data.success) {
-        await fetchCart();
+        dispatch(updateProductQuantity({ id, quantity }));
         toast.success("Quantity updated successfully");
       } else {
         toast.error(response.data.message);
@@ -130,15 +134,18 @@ const Cart = () => {
                         </div>
 
                         <div className="mt-4 sm:mt-0 sm:pr-9">
-                          <label htmlFor="quantity mr-5">Quantity: </label>
+                          <label htmlFor={`quantity-${product.id}`} className="mr-5">
+                            Quantity:
+                          </label>
                           <input
                             type="number"
-                            id="quantity"
+                            id={`quantity-${product.id}`}
                             className="w-16 h-7 indent-1 bg-white border"
                             value={product.quantity}
                             onChange={(e) =>
                               handleUpdateQuantity(product.id, parseInt(e.target.value) || 1)
                             }
+                            min="1"
                           />
 
                           <div className="absolute right-0 top-0">
@@ -175,7 +182,6 @@ const Cart = () => {
             </ul>
           </section>
 
-          {/* Order summary */}
           <section
             aria-labelledby="summary-heading"
             className="mt-16 bg-gray-50 px-4 py-6 sm:p-6 lg:col-span-5 lg:mt-0 lg:p-8"
