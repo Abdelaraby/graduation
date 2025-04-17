@@ -15,52 +15,40 @@ const useLayoutContext = () => {
 const CategoriesSection = () => {
   const { categories } = useLayoutContext();
 
-  // Scroll functionality
-  const scrollContainerRef = React.useRef<HTMLDivElement | null>(null);
-
-  const handleScroll = (direction: "left" | "right") => {
-    if (!scrollContainerRef.current) return;
-
-    const scrollAmount = 200; // Adjust scroll distance as needed
-    const container = scrollContainerRef.current;
-
-    if (direction === "left") {
-      container.scrollBy({ left: -scrollAmount, behavior: "smooth" });
-    } else {
-      container.scrollBy({ left: scrollAmount, behavior: "smooth" });
-    }
-  };
-
   return (
     <div className="max-w-screen-2xl px-5 mx-auto mt-6">
       {/* Section Title */}
-      <h2 className="text-[#8B0000] text-3xl font-bold tracking-[1.56px] max-sm:text-4xl mb-12 text-center">
-        SHOP BY CATEGORY
-      </h2>
+      <div className="flex justify-center items-center">
+        <h2 className="text-black mt-10 text-3xl font-bold tracking-[1.56px] max-sm:text-4xl mb-12 text-center relative inline-block px-4">
+          SHOP BY CATEGORY
+          {/* Underline */}
+          <br />
+          <span className="absolute left-6 right-6 bottom-0 h-[4px] bg-gradient-to-r from-black via-red-500 to-black rounded-full"></span>
+        </h2>
+      </div>
 
-      {/* Categories Container with Scroll Buttons */}
+      {/* Categories Container */}
       <div className="relative flex justify-center">
-      
-        {/* Categories Scrollable Container */}
+        {/* Scrollable Categories Container */}
         <div
-          ref={scrollContainerRef}
           className="flex overflow-x-auto gap-6 pb-6 scrollbar-hide justify-center min-w-[80%]"
         >
-          {categories && categories.length > 0 ? (
-            categories.map((category) => (
-              <CategoryItem
-                key={category.id}
-                categoryTitle={category.name}
-                image={category.image}
-                link={category.name.toLowerCase().replace(/\s+/g, "-")}
-              />
-            ))
-          ) : (
-            <p>No categories found.</p>
-          )}
+          {/* Wrapper to Center Categories */}
+          <div className="flex justify-center flex-nowrap gap-6">
+            {categories && categories.length > 0 ? (
+              categories.map((category) => (
+                <CategoryItem
+                  key={category.id}
+                  categoryTitle={category.name}
+                  image={category.image}
+                  link={category.name.toLowerCase().replace(/\s+/g, "-")}
+                />
+              ))
+            ) : (
+              <p>No categories found.</p>
+            )}
+          </div>
         </div>
-
-   
       </div>
     </div>
   );

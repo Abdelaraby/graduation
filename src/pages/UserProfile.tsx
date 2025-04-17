@@ -3,17 +3,17 @@ import Button from "../components/Button";
 import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import customFetch from "../axios/custom";
-import { checkUserProfileFormData } from "../utils/checkUserProfileFormData";
 import { setLoginStatus } from "../features/auth/authSlice";
 import { store } from "../store";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 const UserProfile = () => {
   const navigate = useNavigate();
-  const [user, setUser] = useState<User>();
+  const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
   const logout = () => {
-    toast.error("Logged out successfully");
+    toast.success("Logged out successfully");
     localStorage.removeItem("user");
     localStorage.removeItem("token"); // Remove token from localStorage
     store.dispatch(setLoginStatus(false));
@@ -38,27 +38,6 @@ const UserProfile = () => {
     }
   };
 
-  const updateUser = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    // Get form data
-    const formData = new FormData(e.currentTarget);
-    const data = Object.fromEntries(formData);
-    // Check if form data is valid
-    if (!checkUserProfileFormData(data)) return;
-    const userId = JSON.parse(localStorage.getItem("user") || "{}").id;
-    if (userId) {
-      try {
-        await customFetch.put(`/users/${userId}`, data);
-        toast.success("User updated successfully");
-      } catch (e) {
-        toast.error("User update failed");
-      }
-    } else {
-      toast.error("Please login to view this page");
-      navigate("/login");
-    }
-  };
-
   useEffect(() => {
     const userId = JSON.parse(localStorage.getItem("user") || "{}").id;
     if (!userId) {
@@ -69,56 +48,84 @@ const UserProfile = () => {
     }
   }, [navigate]);
 
-  if (loading) {
-    return <div>Loading...</div>; // You can display a loading spinner here
-  }
-
   return (
-    <div className="max-w-screen-lg mx-auto mt-24 px-5">
-      <h1 className="text-3xl font-bold mb-8">User Profile</h1>
-      <form className="flex flex-col gap-6" onSubmit={updateUser}>
-        <div className="flex flex-col gap-1">
-          <label htmlFor="firstname">First Name</label>
-          <input
-            type="text"
-            className="bg-white border border-black text-xl py-2 px-3 w-full outline-none max-[450px]:text-base"
-            placeholder="Enter first name"
-            id="firstname"
-            name="name"
-            defaultValue={user?.name}
-          />
-        </div>
-        <div className="flex flex-col gap-1">
-          <label htmlFor="lastname">Last Name</label>
-          <input
-            type="text"
-            className="bg-white border border-black text-xl py-2 px-3 w-full outline-none max-[450px]:text-base"
-            placeholder="Enter last name"
-            id="lastname"
-            name="lastname"
-            defaultValue={user?.lastname}
-          />
-        </div>
-        <div className="flex flex-col gap-1">
-          <label htmlFor="email">Email</label>
-          <input
-            type="email"
-            className="bg-white border border-black text-xl py-2 px-3 w-full outline-none max-[450px]:text-base"
-            placeholder="Enter email address"
-            id="email"
-            name="email"
-            defaultValue={user?.email}
-          />
-        </div>
+    <div className="max-w-screen-lg mx-auto mt-2 px-5 min-h-screen bg-white">
+      {/* Loading Spinner */}
+      {loading && <LoadingSpinner />}
 
-        <Link
-          to="/order-history"
-          className="bg-white text-black text-center text-xl border border-gray-400 font-normal tracking-[0.6px] leading-[72px] w-full h-12 flex items-center justify-center max-md:text-base"
-        >
-          Order History
-        </Link>
-        <Button onClick={logout} text="Logout" mode="brown" />
-      </form>
+      {/* User Profile Content */}
+      {!loading && user && (
+        <div className="bg-white rounded-3xl shadow-2xl p-10 max-w-md mx-auto space-y-8">
+          <h1 className="text-3xl font-bold text-center text-transparent bg-clip-text bg-gradient-to-r from-[#8B0000] to-[#FF4500]">
+            User Profile
+          </h1>
+
+          <form className="flex flex-col gap-6">
+            {/* First Name Field */}
+            <div className="flex flex-col gap-2">
+              <label htmlFor="firstname" className="text-lg font-medium text-gray-800">
+                First Name
+              </label>
+              <input
+                type="text"
+                id="firstname"
+                name="name"
+                defaultValue={user?.name}
+                readOnly // Disable editing
+                className="border border-gray-300 focus:border-transparent h-14 px-5 text-lg rounded-full outline-none transition-all duration-300 shadow-md hover:shadow-lg bg-gray-100 cursor-not-allowed"
+                placeholder="Enter first name"
+              />
+            </div>
+
+            {/* Last Name Field */}
+            <div className="flex flex-col gap-2">
+              <label htmlFor="lastname" className="text-lg font-medium text-gray-800">
+                Last Name
+              </label>
+              <input
+                type="text"
+                id="lastname"
+                name="lastname"
+                defaultValue={user?.lastname}
+                readOnly // Disable editing
+                className="border border-gray-300 focus:border-transparent h-14 px-5 text-lg rounded-full outline-none transition-all duration-300 shadow-md hover:shadow-lg bg-gray-100 cursor-not-allowed"
+                placeholder="Enter last name"
+              />
+            </div>
+
+            {/* Email Field */}
+            <div className="flex flex-col gap-2">
+              <label htmlFor="email" className="text-lg font-medium text-gray-800">
+                Email
+              </label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                defaultValue={user?.email}
+                readOnly // Disable editing
+                className="border border-gray-300 focus:border-transparent h-14 px-5 text-lg rounded-full outline-none transition-all duration-300 shadow-md hover:shadow-lg bg-gray-100 cursor-not-allowed"
+                placeholder="Enter email address"
+              />
+            </div>
+
+            {/* Order History Link */}
+            <Link
+              to="/order-history"
+              className="h-14 text-lg font-medium text-[#8B0000] bg-white border border-[#8B0000] rounded-lg shadow-md hover:bg-[#FF4500] hover:text-white transition-all duration-300 flex items-center justify-center"
+            >
+              Order History
+            </Link>
+
+            {/* Logout Button */}
+            <Button
+              onClick={logout}
+              text="Logout"
+              className="h-14 text-lg font-bold text-white bg-gradient-to-r from-[#8B0000] to-[#FF4500] rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 active:scale-95"
+            />
+          </form>
+        </div>
+      )}
     </div>
   );
 };

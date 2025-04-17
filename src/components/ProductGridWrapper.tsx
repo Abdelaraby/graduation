@@ -1,10 +1,7 @@
-import React, { ReactElement } from "react";
+import React, { ReactElement, useEffect } from "react";
 import { useOutletContext } from "react-router-dom";
 import { useAppDispatch } from "../hooks";
-import {
-  setShowingProducts,
-  setTotalProducts,
-} from "../features/shop/shopSlice";
+import { setShowingProducts, setTotalProducts } from "../features/shop/shopSlice";
 
 interface Category {
   id: number;
@@ -17,35 +14,38 @@ interface Product {
   title: string;
   price: string;
   category: Category;
+  popularity: number;
+  stock: number;
+}
+
+interface ProductGridWrapperProps {
+  children: ReactElement<{ products: Product[] }> | ReactElement<{ products: Product[] }>[];
+  searchQuery?: string;
+  page: number;
 }
 
 const useProductsFromLayout = () => {
   return useOutletContext<{ products: Product[] }>();
 };
 
-const ProductGridWrapper = ({
-  children,
-}: {
-  children:
-    | ReactElement<{ products: Product[] }>
-    | ReactElement<{ products: Product[] }>[];
-}) => {
+const ProductGridWrapper = ({ children, searchQuery }: ProductGridWrapperProps) => {
   const { products } = useProductsFromLayout();
   const dispatch = useAppDispatch();
 
-  React.useEffect(() => {
-    if (products && products.length) {
-      dispatch(setShowingProducts(products.length));
-      dispatch(setTotalProducts(products.length)); // or adjust based on meta
-    }
-  }, [products, dispatch]);
+  const filteredProducts = searchQuery
+    ? products.filter(product =>
+        product.title.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : products;
 
-  const childrenWithProps = React.Children.map(children, (child) => {
-    if (React.isValidElement(child)) {
-      return React.cloneElement(child, { products });
-    }
-    return null;
-  });
+  useEffect(() => {
+    dispatch(setShowingProducts(filteredProducts.length));
+    dispatch(setTotalProducts(products.length));
+  }, [filteredProducts, products, dispatch]);
+
+  const childrenWithProps = React.Children.map(children, (child) =>
+    React.isValidElement(child) ? React.cloneElement(child, { products: filteredProducts }) : null
+  );
 
   return <>{childrenWithProps}</>;
 };

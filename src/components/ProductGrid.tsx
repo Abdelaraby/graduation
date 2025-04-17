@@ -1,5 +1,5 @@
 import React, { useRef } from "react";
-import ProductItem from "./ProductItem"; // Ensure this component is correctly implemented
+import ProductItem from "./ProductItem";
 import { nanoid } from "nanoid";
 
 interface Category {
@@ -12,7 +12,7 @@ interface Product {
   image_url: string;
   title: string;
   price: string;
-  category: Category | string; // Support for both types
+  category: Category | string;
   popularity: number;
   stock: number;
 }
@@ -20,9 +20,7 @@ interface Product {
 const ProductGrid = ({ products }: { products?: Product[] }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  console.log("Products received in ProductGrid:", products);
-
-  if (!products || !Array.isArray(products) || products.length === 0) {
+  if (!products || products.length === 0) {
     return (
       <div className="max-w-screen-2xl mx-auto mt-12 px-5 max-[400px]:px-3">
         <p>No products found.</p>
@@ -30,28 +28,16 @@ const ProductGrid = ({ products }: { products?: Product[] }) => {
     );
   }
 
-  // Scroll functions
   const scrollLeft = () => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollBy({
-        left: -200, // Adjust scroll amount as needed
-        behavior: "smooth",
-      });
-    }
+    scrollRef.current?.scrollBy({ left: -200, behavior: "smooth" });
   };
 
   const scrollRight = () => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollBy({
-        left: 200, // Adjust scroll amount as needed
-        behavior: "smooth",
-      });
-    }
+    scrollRef.current?.scrollBy({ left: 200, behavior: "smooth" });
   };
 
   return (
     <div className="relative max-w-screen-2xl mx-auto mt-0 px-5 max-[400px]:px-3">
-      {/* Left and Right Navigation Buttons */}
       <button
         onClick={scrollLeft}
         className="absolute top-1/2 left-4 transform -translate-y-1/2 bg-black text-white p-2 rounded-full shadow-lg z-10"
@@ -65,38 +51,27 @@ const ProductGrid = ({ products }: { products?: Product[] }) => {
         {">"}
       </button>
 
-      {/* Horizontal Scrolling Container */}
       <div
         ref={scrollRef}
         className="flex overflow-x-auto gap-4 py-4 scrollbar-hide"
         style={{ scrollBehavior: "smooth" }}
       >
-        {products.map((product, index) => {
-          console.log(`Product at index ${index}:`, product);
-
-          if (!product || typeof product.id === "undefined") {
-            console.warn(`Skipping invalid product at index ${index}`);
-            return null;
-          }
-
-          return (
-            <ProductItem
-              key={nanoid()}
-              id={product.id.toString()}
-              image={product.image_url || ""}
-              title={product.title || "Untitled"}
-              category={
-                typeof product.category === "string"
-                  ? product.category
-                  : product.category?.name || "Unknown"
-              }
-              price={parseFloat(product.price) || 0}
-              popularity={product.popularity}
-              stock={product.stock}
-              maxWidth="w-[300px]" // Reduce item width
-            />
-          );
-        })}
+        {products.map((product) => (
+          <ProductItem
+            key={nanoid()}
+            id={product.id.toString()}
+            image={product.image_url}
+            title={product.title}
+            category={
+              typeof product.category === "string"
+                ? product.category
+                : product.category?.name || "Unknown"
+            }
+            price={parseFloat(product.price) || 0}
+            popularity={product.popularity}
+            stock={product.stock}
+          />
+        ))}
       </div>
     </div>
   );

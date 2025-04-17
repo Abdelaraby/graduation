@@ -45,75 +45,107 @@ const Register = () => {
   };
 
   return (
-    <div className="max-w-screen-2xl mx-auto pt-24 flex items-center justify-center">
-      <form
-        onSubmit={handleRegister}
-        className="max-w-5xl mx-auto flex flex-col gap-5 max-sm:gap-3 items-center justify-center max-sm:px-5"
-      >
-        <h2 className="text-5xl text-center mb-5 font-thin max-md:text-4xl max-sm:text-3xl max-[450px]:text-xl max-[450px]:font-normal">
-          Welcome! Register here:
+    <div className="max-w-screen-2xl mx-auto pt-5 flex items-center justify-center bg-white min-h-screen">
+      {/* Register Card */}
+      <div className="bg-white rounded-3xl shadow-2xl p-10 max-w-xl w-full space-y-8">
+        {/* Header */}
+        <h2 className="text-4xl font-bold text-center text-transparent bg-clip-text bg-gradient-to-r from-[#8B0000] to-[#FF4500]">
+          Welcome!
         </h2>
-        <div className="flex flex-col gap-2 w-full">
-          <div className="flex flex-col gap-1">
-            <label htmlFor="name">Your name</label>
-            <input
-              type="text"
-              className="bg-white border border-black text-xl py-2 px-3 w-full outline-none max-[450px]:text-base"
-              placeholder="Enter name"
-              id="name"
-              name="name"
-            />
+        <p className="text-lg text-center text-gray-700">
+          Create your account below.
+        </p>
+
+        {/* Form */}
+        <form onSubmit={handleRegister} className="flex flex-col gap-6">
+          {/* First and Last Name Fields in the Same Row */}
+          <div className="flex gap-4">
+            {/* First Name Field */}
+            <div className="flex flex-col gap-2 w-1/2">
+              <label htmlFor="name" className="text-lg font-medium text-gray-800">
+                First Name
+              </label>
+              <input
+                type="text"
+                name="name"
+                placeholder="Enter your first name"
+                className="border border-gray-300 focus:border-transparent h-14 px-5 text-lg rounded-full outline-none transition-all duration-300 shadow-md hover:shadow-lg"
+              />
+            </div>
+
+            {/* Last Name Field */}
+            <div className="flex flex-col gap-2 w-1/2">
+              <label htmlFor="lastname" className="text-lg font-medium text-gray-800">
+                Last Name
+              </label>
+              <input
+                type="text"
+                name="lastname"
+                placeholder="Enter your last name"
+                className="border border-gray-300 focus:border-transparent h-14 px-5 text-lg rounded-full outline-none transition-all duration-300 shadow-md hover:shadow-lg"
+              />
+            </div>
           </div>
-          <div className="flex flex-col gap-1">
-            <label htmlFor="lastname">Your lastname</label>
-            <input
-              type="text"
-              className="bg-white border border-black text-xl py-2 px-3 w-full outline-none max-[450px]:text-base"
-              placeholder="Enter lastname"
-              id="lastname"
-              name="lastname"
-            />
-          </div>
-          <div className="flex flex-col gap-1">
-            <label htmlFor="email">Your email</label>
+
+          {/* Email Field */}
+          <div className="flex flex-col gap-2">
+            <label htmlFor="email" className="text-lg font-medium text-gray-800">
+              Email
+            </label>
             <input
               type="email"
-              className="bg-white border border-black text-xl py-2 px-3 w-full outline-none max-[450px]:text-base"
-              placeholder="Enter email address"
-              id="email"
               name="email"
+              placeholder="Enter your email"
+              className="border border-gray-300 focus:border-transparent h-14 px-5 text-lg rounded-full outline-none transition-all duration-300 shadow-md hover:shadow-lg"
             />
           </div>
-          <div className="flex flex-col gap-1">
-            <label htmlFor="password">Your password</label>
+
+          {/* Password Field */}
+          <div className="flex flex-col gap-2">
+            <label htmlFor="password" className="text-lg font-medium text-gray-800">
+              Password
+            </label>
             <input
               type="password"
-              className="bg-white border border-black text-xl py-2 px-3 w-full outline-none max-[450px]:text-base"
-              placeholder="Enter password"
-              id="password"
               name="password"
+              placeholder="Enter your password"
+              className="border border-gray-300 focus:border-transparent h-14 px-5 text-lg rounded-full outline-none transition-all duration-300 shadow-md hover:shadow-lg"
             />
           </div>
-          <div className="flex flex-col gap-1">
-            <label htmlFor="password_confirmation">Confirm password</label>
+
+          {/* Confirm Password Field */}
+          <div className="flex flex-col gap-2">
+            <label htmlFor="password_confirmation" className="text-lg font-medium text-gray-800">
+              Confirm Password
+            </label>
             <input
               type="password"
-              className="bg-white border border-black text-xl py-2 px-3 w-full outline-none max-[450px]:text-base"
-              placeholder="Confirm password"
-              id="password_confirmation"
               name="password_confirmation"
+              placeholder="Confirm your password"
+              className="border border-gray-300 focus:border-transparent h-14 px-5 text-lg rounded-full outline-none transition-all duration-300 shadow-md hover:shadow-lg"
             />
           </div>
-        </div>
-        <Button type="submit" text="Register" mode="brown" />
-        <Link
-          to="/login"
-          className="text-xl max-md:text-lg max-[450px]:text-sm"
-        >
-          Already have an account?{" "}
-          <span className="text-secondaryBrown">Login now</span>.
-        </Link>
-      </form>
+
+          {/* Register Button */}
+          <Button
+            type="submit"
+            text="Register"
+            className="h-14 text-lg font-bold text-white bg-gradient-to-r from-[#8B0000] to-[#FF4500] rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 active:scale-95"
+          />
+
+          {/* Login Link */}
+          <p className="text-center text-gray-700">
+            Already have an account?{" "}
+            <Link
+              to="/login"
+              className="text-[#8B0000] font-medium hover:text-[#FF4500] transition-all duration-300"
+            >
+              Login now
+            </Link>
+            .
+          </p>
+        </form>
+      </div>
     </div>
   );
 };
