@@ -91,85 +91,74 @@ const Checkout: React.FC = () => {
     await fetchAddressFromCoordinates(lat, lng);
   };
 
+
   const handleCheckoutSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    const formEntries = Object.fromEntries(formData);
 
-    // Create checkout data
     const checkoutData = {
-      email_address: formEntries.email_address as string,
-      address: addressData.address,
-      city: addressData.city,
-      country: addressData.country,
-      region: addressData.region,
-      postal_code: addressData.postal_code,
-      phone: formEntries.phone as string,
-      payment_type: selectedPaymentMethod,
-      subtotal: Number(subtotal),
-      products: productsInCart.map((product) => ({ id: Number(product.id) })),
-      latitude: location ? location.lat.toString() : "",
-      longitude: location ? location.lng.toString() : "",
-      amount: Number(subtotal) + (subtotal ? 5 + Number(subtotal) / 5 : 0),
+        email_address: formData.get("email_address") as string,
+        address: addressData.address,
+        city: addressData.city,
+        country: addressData.country,
+        region: addressData.region,
+        postal_code: addressData.postal_code,
+        phone: formData.get("phone") as string,
+        payment_type: selectedPaymentMethod,
+        subtotal: Number(subtotal),
+        products: productsInCart.map((product) => ({ id: Number(product.id) })),
+        latitude: location ? location.lat.toString() : "",
+        longitude: location ? location.lng.toString() : "",
+        amount: Math.round((Number(subtotal) + (subtotal ? 5 + Number(subtotal) / 5 : 0)) * 100),
     };
 
-    // Validate data
-    if (!checkCheckoutFormData(checkoutData)) {
-      return;
-    }
-
-    if (productsInCart.length === 0) {
-      toast.error("السلة فاضية، أضف منتجات قبل المتابعة");
-      return;
-    }
-
-    if (!location) {
-      toast.error("من فضلك اختر موقعًا من الخريطة");
-      return;
-    }
+    if (!checkCheckoutFormData(checkoutData)) return;
 
     setIsSubmitting(true);
     try {
-      if (selectedPaymentMethod === "paymob") {
-        const response = await customFetch.post("/generatePaymentKey", checkoutData);
-        const { payment_key, order_id } = response.data;
-        if (!payment_key) {
-          throw new Error("مفتاح الدفع غير متوفر");
+        if (selectedPaymentMethod === "paymob") {
+            const response = await customFetch.post("/generatePaymentKey", checkoutData);
+            console.log("Generate Payment Key Response:", response.data);
+
+        
+
+            const { payment_key, order_id } = response.data;
+            if (!payment_key) {
+                toast.error("مفتاح الدفع غير متوفر");
+                throw new Error("مفتاح الدفع غير متوفر");
+            }
+
+            const iframeId = 791606;
+            const iframeURL = `https://accept.paymob.com/api/acceptance/iframes/${iframeId}?payment_token=${payment_key}`;
+            window.location.href = iframeURL;
+        } else if (selectedPaymentMethod === "cash") {
+          const response = await customFetch.post("/orders", checkoutData);
+          if (response.data.success && response.status === 201) {
+            toast.success("تم تسجيل الطلب بنجاح");
+            dispatch(clearCart());
+            navigate("/order-confirmation", { state: { orderId: response.data.order_id } });
+          } else {
+            throw new Error(response.data.message || "فشل تسجيل الطلب");
+          }
+  
         }
-        const iframeId = process.env.REACT_APP_PAYMOB_IFRAME_ID;
-        if (!iframeId) {
-          console.warn("تحذير: Paymob Iframe ID غير معرّف");
-          throw new Error("إعدادات Paymob غير مكتملة");
+    } catch (error) {
+        console.error("API Error Response:", error);
+        let errorMessage = "حصل خطأ، حاول مرة أخرى";
+        if (error instanceof Error && error.message) {
+            errorMessage = error.message;
+        } else if (typeof error === "object" && error !== null && "response" in error) {
+            const axiosError = error as any;
+            errorMessage =
+                axiosError.response?.data?.message ||
+                axiosError.response?.data?.errors?.[0] ||
+                errorMessage;
         }
-        const iframeURL = `https://accept.paymob.com/api/acceptance/iframes/${iframeId}?payment_token=${payment_key}`;
-        window.location.href = iframeURL;
-      } else if (selectedPaymentMethod === "cash") {
-        const response = await customFetch.post("/orders", checkoutData);
-        if (response.data.success && response.status === 201) {
-          toast.success("تم تسجيل الطلب بنجاح");
-          dispatch(clearCart());
-          navigate("/order-confirmation", { state: { orderId: response.data.order_id } });
-        } else {
-          throw new Error(response.data.message || "فشل تسجيل الطلب");
-        }
-      }
-    } catch (error: unknown) {
-      console.error("خطأ في الدفع:", error);
-      let errorMessage = "حصل خطأ، حاول مرة أخرى";
-      if (error instanceof Error && error.message) {
-        errorMessage = error.message;
-      } else if (typeof error === "object" && error !== null && "response" in error) {
-        const axiosError = error as any;
-        errorMessage =
-          axiosError.response?.data?.message ||
-          axiosError.response?.data?.errors?.[0] ||
-          errorMessage;
-      }
-      toast.error(errorMessage);
+        toast.error(errorMessage);
     } finally {
-      setIsSubmitting(false);
+        setIsSubmitting(false);
     }
-  };
+};
 
   return (
     <div className="max-w-screen-lg mx-auto mt-10 px-0 min-h-screen bg-white">

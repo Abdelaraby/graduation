@@ -61,10 +61,11 @@ interface OrderItem {
     updated_at: string;
   };
 }
-
 export const loader = async ({ params }: { params: { id: string } }) => {
   try {
+    console.log("Fetching order with ID:", params.id);
     const response = await customFetch.get(`/orders/${params.id}`);
+    console.log("API Response:", response.data);
     return response.data.order || null;
   } catch (error: any) {
     console.error("Failed to fetch order:", error);

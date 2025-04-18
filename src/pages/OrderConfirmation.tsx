@@ -1,6 +1,9 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 const OrderConfirmation = () => {
+  const location = useLocation();
+  const { orderId } = location.state || {};
+
   return (
     <div className="max-w-screen-lg mx-auto pt-20 px-5 min-h-screen bg-white">
       {/* Header */}
@@ -10,6 +13,14 @@ const OrderConfirmation = () => {
       <p className="text-center mt-4 text-lg text-gray-700">
         Your order has been confirmed and will be shipped shortly.
       </p>
+
+      {/* Order Details */}
+      {orderId && (
+        <div className="mt-6 text-center">
+          <p className="text-gray-700">Order ID: <span className="font-bold">{orderId}</span></p>
+          <p className="text-gray-700">Estimated Delivery: 3-5 business days</p>
+        </div>
+      )}
 
       {/* Action Buttons */}
       <div className="flex flex-col items-center space-y-4 mt-10">

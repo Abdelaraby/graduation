@@ -22,6 +22,7 @@ import { loader as orderHistoryLoader } from "./pages/OrderHistory";
 import { loader as singleOrderLoader } from "./pages/SingleOrderHistory";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import PaymobResponseHandler from "./components/paymobResponse";
 
 
 const router = createBrowserRouter([
@@ -84,7 +85,10 @@ const router = createBrowserRouter([
       {
         path: "order-history/:id",
         element: <SingleOrderHistory />,
-        loader: singleOrderLoader,
+      },
+      {
+        path:"paymob-response",
+        element:<PaymobResponseHandler/>
       },
       {
         path: "services",
