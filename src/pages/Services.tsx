@@ -1,112 +1,111 @@
-import React from 'react';
-import '../index.css';
+import React from "react";
+import "../index.css";
 
 const Services: React.FC = () => {
-    return (
-        <section className="container pt-3 mb-3 services-section">
-          <h2 className="h3 block-title text-center">
-            خدمات ورشة السيارات
-            <small>كل ما تحتاجه سيارتك في مكان واحد</small>
-          </h2>
-          <div className="row pt-5 mt-3">
-            {/* خدمة 1: تصليح السيارات */}
-            <div className="col-lg-4 col-sm-6 mb-30 pb-5">
-              <a className="card" href="#">
-                <div className="box-shadow bg-white rounded-circle mx-auto text-center icon-circle">
-                  <i className="fa fa-tools fa-3x head-icon"></i>
-                </div>
-                <div className="card-body text-center">
-                  <h3 className="card-title pt-1">تصليح السيارات</h3>
-                  <p className="card-text text-sm">
-                    إصلاحات سريعة ودقيقة لجميع أعطال السيارات بأيدي فنيين محترفين.
-                  </p>
-                 
-                </div>
-              </a>
-            </div>
-      
-            {/* خدمة 2: بيع قطع الغيار */}
-            <div className="col-lg-4 col-sm-6 mb-30 pb-5">
-              <a className="card" href="#">
-                <div className="box-shadow bg-white rounded-circle mx-auto text-center icon-circle">
-                  <i className="fa fa-cogs fa-3x head-icon"></i>
-                </div>
-                <div className="card-body text-center">
-                  <h3 className="card-title pt-1">بيع قطع الغيار</h3>
-                  <p className="card-text text-sm">
-                    قطع غيار أصلية بجودة عالية وبأسعار تناسب الجميع.
-                  </p>
-                 
-                </div>
-              </a>
-            </div>
-      
-            {/* خدمة 3: شراء قطع غيار مستعملة */}
-            <div className="col-lg-4 col-sm-6 mb-30 pb-5">
-              <a className="card" href="#">
-                <div className="box-shadow bg-white rounded-circle mx-auto text-center icon-circle">
-                  <i className="fa fa-recycle fa-3x head-icon"></i>
-                </div>
-                <div className="card-body text-center">
-                  <h3 className="card-title pt-1">شراء قطع غيار مستعملة</h3>
-                  <p className="card-text text-sm">
-                    نشتري قطع الغيار المستعملة بحالة جيدة بأسعار عادلة.
-                  </p>
-                  
-                </div>
-              </a>
-            </div>
-      
-            {/* خدمة 4: بيع إطارات وجنوط */}
-            <div className="col-lg-4 col-sm-6 mb-30 pb-5">
-              <a className="card" href="#">
-                <div className="box-shadow bg-white rounded-circle mx-auto text-center icon-circle">
-                  <i className="fa fa-circle-notch fa-3x head-icon"></i>
-                </div>
-                <div className="card-body text-center">
-                  <h3 className="card-title pt-1">بيع إطارات وجنوط</h3>
-                  <p className="card-text text-sm">
-                    إطارات وجنوط جديدة ومستعملة بأفضل الأسعار والجودة.
-                  </p>
-              
-                </div>
-              </a>
-            </div>
-      
-            {/* خدمة 5: شراء سيارات مستعملة */}
-            <div className="col-lg-4 col-sm-6 mb-30 pb-5">
-              <a className="card" href="#">
-                <div className="box-shadow bg-white rounded-circle mx-auto text-center icon-circle">
-                  <i className="fa fa-car-side fa-3x head-icon"></i>
-                </div>
-                <div className="card-body text-center">
-                  <h3 className="card-title pt-1">شراء سيارات مستعملة</h3>
-                  <p className="card-text text-sm">
-                    نشتري سيارتك المستعملة بأسعار تنافسية وعملية سريعة.
-                  </p>
-                
-                </div>
-              </a>
-            </div>
-      
-            {/* خدمة 6: بيع زيوت ومواد تشحيم */}
-            <div className="col-lg-4 col-sm-6 mb-30 pb-5">
-              <a className="card" href="#">
-                <div className="box-shadow bg-white rounded-circle mx-auto text-center icon-circle">
-                  <i className="fa fa-oil-can fa-3x head-icon"></i>
-                </div>
-                <div className="card-body text-center">
-                  <h3 className="card-title pt-1">بيع زيوت ومواد تشحيم</h3>
-                  <p className="card-text text-sm">
-                    زيوت محركات ومواد تشحيم عالية الجودة لأداء مثالي.
-                  </p>
-               
-                </div>
-              </a>
+  return (
+    <div className="max-w-screen-lg mx-auto mt-20 px-5 min-h-screen bg-white">
+      {/* Header */}
+      <h1 className="text-3xl font-bold text-center text-transparent bg-clip-text bg-gradient-to-r from-[#8B0000] to-[#FF4500] mb-10">
+        خدمات ورشة السيارات
+      </h1>
+      <p className="text-center text-gray-700 text-lg mb-10">
+        كل ما تحتاجه سيارتك في مكان واحد
+      </p>
+
+      {/* Services Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {/* Service Card 1: تصليح السيارات */}
+        <div className="bg-white rounded-2xl shadow-md p-6 space-y-4 hover:shadow-lg transition-shadow duration-300">
+          <div className="flex justify-center">
+            <div className="bg-gradient-to-r from-[#8B0000] to-[#FF4500] rounded-full p-4 w-fit">
+              <i className="fa fa-tools fa-2x text-white"></i>
             </div>
           </div>
-        </section>
-      );
+          <h3 className="text-xl font-semibold text-center text-gray-900">
+            تصليح السيارات
+          </h3>
+          <p className="text-sm text-center text-gray-700">
+            إصلاحات سريعة ودقيقة لجميع أعطال السيارات بأيدي فنيين محترفين.
+          </p>
+        </div>
+
+        {/* Service Card 2: بيع قطع الغيار */}
+        <div className="bg-white rounded-2xl shadow-md p-6 space-y-4 hover:shadow-lg transition-shadow duration-300">
+          <div className="flex justify-center">
+            <div className="bg-gradient-to-r from-[#8B0000] to-[#FF4500] rounded-full p-4 w-fit">
+              <i className="fa fa-cogs fa-2x text-white"></i>
+            </div>
+          </div>
+          <h3 className="text-xl font-semibold text-center text-gray-900">
+            بيع قطع الغيار
+          </h3>
+          <p className="text-sm text-center text-gray-700">
+            قطع غيار أصلية بجودة عالية وبأسعار تناسب الجميع.
+          </p>
+        </div>
+
+        {/* Service Card 3: شراء قطع غيار مستعملة */}
+        <div className="bg-white rounded-2xl shadow-md p-6 space-y-4 hover:shadow-lg transition-shadow duration-300">
+          <div className="flex justify-center">
+            <div className="bg-gradient-to-r from-[#8B0000] to-[#FF4500] rounded-full p-4 w-fit">
+              <i className="fa fa-recycle fa-2x text-white"></i>
+            </div>
+          </div>
+          <h3 className="text-xl font-semibold text-center text-gray-900">
+            شراء قطع غيار مستعملة
+          </h3>
+          <p className="text-sm text-center text-gray-700">
+            نشتري قطع الغيار المستعملة بحالة جيدة بأسعار عادلة.
+          </p>
+        </div>
+
+        {/* Service Card 4: بيع إطارات وجنوط */}
+        <div className="bg-white rounded-2xl shadow-md p-6 space-y-4 hover:shadow-lg transition-shadow duration-300">
+          <div className="flex justify-center">
+            <div className="bg-gradient-to-r from-[#8B0000] to-[#FF4500] rounded-full p-4 w-fit">
+              <i className="fa fa-circle-notch fa-2x text-white"></i>
+            </div>
+          </div>
+          <h3 className="text-xl font-semibold text-center text-gray-900">
+            بيع إطارات وجنوط
+          </h3>
+          <p className="text-sm text-center text-gray-700">
+            إطارات وجنوط جديدة ومستعملة بأفضل الأسعار والجودة.
+          </p>
+        </div>
+
+        {/* Service Card 5: شراء سيارات مستعملة */}
+        <div className="bg-white rounded-2xl shadow-md p-6 space-y-4 hover:shadow-lg transition-shadow duration-300">
+          <div className="flex justify-center">
+            <div className="bg-gradient-to-r from-[#8B0000] to-[#FF4500] rounded-full p-4 w-fit">
+              <i className="fa fa-car-side fa-2x text-white"></i>
+            </div>
+          </div>
+          <h3 className="text-xl font-semibold text-center text-gray-900">
+            شراء سيارات مستعملة
+          </h3>
+          <p className="text-sm text-center text-gray-700">
+            نشتري سيارتك المستعملة بأسعار تنافسية وعملية سريعة.
+          </p>
+        </div>
+
+        {/* Service Card 6: بيع زيوت ومواد تشحيم */}
+        <div className="bg-white rounded-2xl shadow-md p-6 space-y-4 hover:shadow-lg transition-shadow duration-300">
+          <div className="flex justify-center">
+            <div className="bg-gradient-to-r from-[#8B0000] to-[#FF4500] rounded-full p-4 w-fit">
+              <i className="fa fa-oil-can fa-2x text-white"></i>
+            </div>
+          </div>
+          <h3 className="text-xl font-semibold text-center text-gray-900">
+            بيع زيوت ومواد تشحيم
+          </h3>
+          <p className="text-sm text-center text-gray-700">
+            زيوت محركات ومواد تشحيم عالية الجودة لأداء مثالي.
+          </p>
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default Services;

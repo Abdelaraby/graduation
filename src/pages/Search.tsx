@@ -3,7 +3,6 @@ import {
   Button,
   ProductGrid,
   ProductGridWrapper,
-  ShowingSearchPagination,
 } from "../components";
 import { Form, useSearchParams, useNavigate } from "react-router-dom";
 
@@ -11,7 +10,7 @@ const Search = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const query = searchParams.get("query") || "";
-  const [currentPage, setCurrentPage] = useState<number>(
+  const [] = useState<number>(
     parseInt(searchParams.get("page") || "1")
   );
 
@@ -55,7 +54,7 @@ const Search = () => {
       </Form>
 
       {/* Product Grid */}
-      <ProductGridWrapper searchQuery={query} page={currentPage}>
+      <ProductGridWrapper searchQuery={query}>
         <ProductGrid />
       </ProductGridWrapper>
 

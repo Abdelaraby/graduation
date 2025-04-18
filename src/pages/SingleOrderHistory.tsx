@@ -92,9 +92,14 @@ const SingleOrderHistory = () => {
 
   if (!order) {
     return (
-      <div className="max-w-screen-2xl mx-auto pt-20 px-5">
-        <h1 className="text-3xl font-bold mb-8">Order Not Found</h1>
-        <Link to="/order-history" className="text-blue-500 hover:underline">
+      <div className="max-w-screen-lg mx-auto pt-20 px-5 min-h-screen bg-white">
+        <h1 className="text-3xl font-bold text-center text-transparent bg-clip-text bg-gradient-to-r from-[#8B0000] to-[#FF4500] mb-8">
+          Order Not Found
+        </h1>
+        <Link
+          to="/order-history"
+          className="text-[#8B0000] hover:text-[#FF4500] transition-colors duration-300 block text-center mt-4"
+        >
           Back to Order History
         </Link>
       </div>
@@ -102,65 +107,102 @@ const SingleOrderHistory = () => {
   }
 
   return (
-    <div className="max-w-screen-2xl mx-auto pt-20 px-5">
-      <h1 className="text-3xl font-bold mb-8">Order Details - #{order.id}</h1>
-      <div className="bg-white p-6 rounded-lg shadow-md">
-        <p>
-          <strong>Date:</strong> {formatDate(order.order_date)}
-        </p>
-        <p>
-          <strong>Status:</strong> {order.order_status}
-        </p>
-        <p>
-          <strong>Total:</strong> $
-          {order.total ? parseFloat(order.total).toFixed(2) : "N/A"}
-        </p>
-        <p>
-          <strong>Shipping Address:</strong> {order.address}, {order.city},{" "}
-          {order.region}, {order.country}, {order.postal_code}
-        </p>
-        <p>
-          <strong>Phone:</strong> {order.phone}
-        </p>
-        <p>
-          <strong>Payment Type:</strong> {order.payment_type}
-        </p>
-        <h2 className="text-2xl font-semibold mt-6 mb-4">Order Items</h2>
-        <table className="min-w-full bg-white border border-gray-200">
-          <thead>
-            <tr>
-              <th className="py-3 px-4 border-b">Product</th>
-              <th className="py-3 px-4 border-b">Quantity</th>
-              <th className="py-3 px-4 border-b">Price</th>
-              <th className="py-3 px-4 border-b">Total</th>
-            </tr>
-          </thead>
-          <tbody>
-            {order.order_items.map((item) => (
-              <tr key={item.id}>
-                <td className="py-3 px-4 border-b">{item.product.title}</td>
-                <td className="py-3 px-4 border-b text-center">
-                  {item.quantity}
-                </td>
-                <td className="py-3 px-4 border-b text-center">
-                  ${item.price ? parseFloat(item.price).toFixed(2) : "N/A"}
-                </td>
-                <td className="py-3 px-4 border-b text-center">
-                  $
-                  {item.price
-                    ? (parseFloat(item.price) * item.quantity).toFixed(2)
-                    : "N/A"}
-                </td>
+    <div className="max-w-screen-lg mx-auto pt-20 px-5 min-h-screen bg-white">
+      {/* Header */}
+      <h1 className="text-3xl font-bold text-center text-transparent bg-clip-text bg-gradient-to-r from-[#8B0000] to-[#FF4500] mb-10">
+        Order Details - #{order.id}
+      </h1>
+
+      {/* Order Summary Section */}
+      <div className="bg-white p-6 rounded-2xl shadow-lg space-y-6">
+        {/* Order Information */}
+        <div className="space-y-4">
+          <p className="text-lg font-medium text-gray-900">
+            <strong>Date:</strong>{" "}
+            <span className="font-normal">{formatDate(order.order_date)}</span>
+          </p>
+          <p className="text-lg font-medium text-gray-900">
+            <strong>Status:</strong>{" "}
+            <span className="font-normal">{order.order_status}</span>
+          </p>
+          <p className="text-lg font-medium text-gray-900">
+            <strong>Total:</strong>{" "}
+            <span className="font-normal">
+              $
+              {order.total ? parseFloat(order.total).toFixed(2) : "N/A"}
+            </span>
+          </p>
+          <p className="text-lg font-medium text-gray-900">
+            <strong>Shipping Address:</strong>{" "}
+            <span className="font-normal">
+              {order.address}, {order.city}, {order.region}, {order.country},{" "}
+              {order.postal_code}
+            </span>
+          </p>
+          <p className="text-lg font-medium text-gray-900">
+            <strong>Phone:</strong>{" "}
+            <span className="font-normal">{order.phone}</span>
+          </p>
+          <p className="text-lg font-medium text-gray-900">
+            <strong>Payment Type:</strong>{" "}
+            <span className="font-normal">{order.payment_type}</span>
+          </p>
+        </div>
+
+        {/* Order Items Table */}
+        <div>
+          <h2 className="text-2xl font-semibold text-gray-900 mb-4">Order Items</h2>
+          <table className="min-w-full bg-white border border-gray-200 rounded-lg shadow-sm">
+            <thead>
+              <tr className="bg-gray-50">
+                <th className="py-3 px-6 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">
+                  Product
+                </th>
+                <th className="py-3 px-6 text-center text-sm font-semibold text-gray-700 uppercase tracking-wider">
+                  Quantity
+                </th>
+                <th className="py-3 px-6 text-center text-sm font-semibold text-gray-700 uppercase tracking-wider">
+                  Price
+                </th>
+                <th className="py-3 px-6 text-center text-sm font-semibold text-gray-700 uppercase tracking-wider">
+                  Total
+                </th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-        <Link
-          to="/order-history"
-          className="mt-6 inline-block text-blue-500 hover:underline"
-        >
-          Back to Order History
-        </Link>
+            </thead>
+            <tbody>
+              {order.order_items.map((item) => (
+                <tr key={item.id} className="hover:bg-gray-50 transition-colors duration-300">
+                  <td className="py-3 px-6 text-sm font-medium text-gray-900">
+                    {item.product.title}
+                  </td>
+                  <td className="py-3 px-6 text-center text-sm text-gray-500">
+                    {item.quantity}
+                  </td>
+                  <td className="py-3 px-6 text-center text-sm text-gray-500">
+                    $
+                    {item.price ? parseFloat(item.price).toFixed(2) : "N/A"}
+                  </td>
+                  <td className="py-3 px-6 text-center text-sm font-semibold text-gray-900">
+                    $
+                    {item.price
+                      ? (parseFloat(item.price) * item.quantity).toFixed(2)
+                      : "N/A"}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Back to Order History Button */}
+        <div className="flex justify-center">
+          <Link
+            to="/order-history"
+            className="text-lg font-bold text-[#8B0000] hover:text-[#FF4500] transition-colors duration-300 underline"
+          >
+            Back to Order History
+          </Link>
+        </div>
       </div>
     </div>
   );

@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import customFetch from "../axios/custom";
+import toast from "react-hot-toast";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 interface FormData {
   name: string;
@@ -15,14 +17,13 @@ interface Errors {
 
 const Contact: React.FC = () => {
   const [formData, setFormData] = useState<FormData>({
-    name: "Name",
-    email: "E-mail",
-    message: "Message",
+    name: "",
+    email: "",
+    message: "",
   });
   const [errors, setErrors] = useState<Errors>({});
   const [success, setSuccess] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -31,227 +32,177 @@ const Contact: React.FC = () => {
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleFocus = (
-    e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
-    if (value === "Name" || value === "E-mail" || value === "Message") {
-      setFormData({ ...formData, [name]: "" });
-    }
-  };
-
-  const handleBlur = (
-    e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
-    if (value === "") {
-      setFormData({
-        ...formData,
-        [name]:
-          name === "name" ? "Name" : name === "email" ? "E-mail" : "Message",
-      });
-    }
-  };
-
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     let newErrors: Errors = {};
 
-    if (formData.name === "Name" || formData.name === "") {
-      newErrors.name = "Please enter name";
+    if (!formData.name.trim()) {
+      newErrors.name = "Please enter your name.";
     }
-    if (
-      formData.email === "E-mail" ||
-      formData.email === "" ||
-      !formData.email.includes("@")
-    ) {
-      newErrors.email = "E-mail is not a valid format";
+    if (!formData.email.trim() || !formData.email.includes("@")) {
+      newErrors.email = "Please enter a valid email address.";
     }
-    if (formData.message === "Message" || formData.message === "") {
-      newErrors.message = "Please enter message";
+    if (!formData.message.trim()) {
+      newErrors.message = "Please enter your message.";
     }
 
     setErrors(newErrors);
-    setErrorMessage(null);
 
     if (Object.keys(newErrors).length === 0) {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        setErrorMessage("Authentication token is missing. Please log in.");
-        return;
-      }
-
       setIsLoading(true);
       try {
         const response = await customFetch.post("/contact", formData);
-        console.log("Response from backend:", response.data);
         if (response.data.success) {
+          toast.success("Your message has been sent successfully!");
           setSuccess(true);
-          setTimeout(() => {
-            setSuccess(false);
-            setFormData({ name: "Name", email: "E-mail", message: "Message" });
-            setIsLoading(false);
-          }, 2000);
+          setFormData({ name: "", email: "", message: "" });
         } else {
-          setIsLoading(false);
-          setErrorMessage(response.data.message || "Failed to send message.");
+          toast.error(response.data.message || "Failed to send message.");
         }
       } catch (error: any) {
+        console.error("Error sending message:", error);
+        toast.error(
+          error.response?.data?.message ||
+            error.message ||
+            "Something went wrong. Please try again."
+        );
+      } finally {
         setIsLoading(false);
-        const errorMsg =
-          error.response?.status === 401
-            ? "Unauthorized: Invalid or expired token."
-            : error.response?.data?.message ||
-              error.message ||
-              "Something went wrong, please try again.";
-        setErrorMessage(errorMsg);
-        console.error("Error details:", {
-          status: error.response?.status,
-          data: error.response?.data,
-          message: error.message,
-        });
       }
     }
   };
 
   return (
-    <div className="contact-section">
-      <div className="container bootstrap snippets bootdeys">
-        <div className="contact-details text-center">
-          <div className="contact-item">
-            <i className="fa fa-phone fa-2x text-colored"></i>
-            <p>01012279600</p>
-          </div>
-          <div className="contact-item">
-            <i className="fa fa-globe fa-2x text-colored"></i>
-            <a href="https://desertrescue.com" className="text-muted">
-              desertrescue.com
-            </a>
-          </div>
-          <div className="contact-item">
-            <i className="fa fa-map-marker-alt fa-2x text-colored"></i>
-            <p>Minia - Shalaby</p>
-          </div>
-          <div className="contact-item">
-            <i className="fa fa-envelope fa-2x text-colored"></i>
-            <a href="mailto:desertrescue@gmail.com" className="text-muted">
-              desertrescue@gmail.com
-            </a>
-          </div>
+    <div className="max-w-screen-lg mx-auto mt-6 px-5 min-h-screen bg-white">
+      {/* Header */}
+      <h1 className="text-3xl font-bold text-center text-transparent bg-clip-text bg-gradient-to-r from-[#8B0000] to-[#FF4500] mb-10">
+        Contact Us
+      </h1>
+
+      {/* Contact Information Section */}
+      <div className="bg-white rounded-3xl shadow-lg p-6 flex items-center justify-between mb-8">
+        <div className="flex items-center gap-4">
+          <i className="fa fa-phone fa-2x text-[#8B0000]"></i>
+          <p className="text-gray-700 mb-0">+123 456 7890</p>
+        </div>
+        <div className="flex items-center gap-4">
+          <i className="fa fa-globe fa-2x text-[#8B0000]"></i>
+          <a href="https://desertrescue.com" className="text-[#8B0000] hover:text-[#FF4500] transition-colors duration-300">
+            desertrescue.com
+          </a>
+        </div>
+        <div className="flex items-center gap-4">
+          <i className="fa fa-map-marker-alt fa-2x text-[#8B0000]"></i>
+          <p className="text-gray-700 mb-0">Minia - Shalaby</p>
+        </div>
+        <div className="flex items-center gap-4">
+          <i className="fa fa-envelope fa-2x text-[#8B0000]"></i>
+          <a href="mailto:desertrescue@gmail.com" className="text-[#8B0000] hover:text-[#FF4500] transition-colors duration-300">
+            desertrescue@gmail.com
+          </a>
+        </div>
+      </div>
+
+      {/* Form and Map Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
+        {/* Contact Form */}
+        <div className="bg-white rounded-3xl shadow-lg p-6 space-y-6 h-auto max-h-[450px] overflow-y-auto">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Name Field */}
+            <div>
+              <label htmlFor="name" className="block text-lg font-medium text-gray-800">
+                Name
+              </label>
+              <input
+                type="text"
+                id="name"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                placeholder="Enter your name"
+                className={`block w-full h-12 px-5 text-lg rounded-full border border-gray-300 focus:border-[#8B0000] focus:outline-none transition-all duration-300 shadow-md hover:shadow-lg ${
+                  errors.name ? "border-red-500" : ""
+                }`}
+                disabled={isLoading}
+              />
+              {errors.name && (
+                <p className="text-sm text-red-500 mt-1">{errors.name}</p>
+              )}
+            </div>
+
+            {/* Email Field */}
+            <div>
+              <label htmlFor="email" className="block text-lg font-medium text-gray-800">
+                Email
+              </label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="Enter your email"
+                className={` block w-full h-12 px-5 text-lg rounded-full border border-gray-300 focus:border-[#8B0000] focus:outline-none transition-all duration-300 shadow-md hover:shadow-lg ${
+                  errors.email ? "border-red-500" : ""
+                }`}
+                disabled={isLoading}
+              />
+              {errors.email && (
+                <p className="text-sm text-red-500 mt-1">{errors.email}</p>
+              )}
+            </div>
+
+            {/* Message Field */}
+            <div>
+              <label htmlFor="message" className="block text-lg font-medium text-gray-800">
+                Message
+              </label>
+              <textarea
+                id="message"
+                name="message"
+                value={formData.message}
+                onChange={handleChange}
+                placeholder="Enter your message"
+                rows={2}
+                className={`block w-full px-5 py-3 text-lg rounded-2xl border border-gray-300 focus:border-[#8B0000] focus:outline-none transition-all duration-300 shadow-md hover:shadow-lg ${
+                  errors.message ? "border-red-500" : ""
+                }`}
+                disabled={isLoading}
+              ></textarea>
+              {errors.message && (
+                <p className="text-sm text-red-500 mt-1">{errors.message}</p>
+              )}
+            </div>
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              className="w-full h-12 text-lg font-bold text-white bg-gradient-to-r from-[#8B0000] to-[#FF4500] rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 active:scale-95"
+              disabled={isLoading}
+            >
+              {isLoading ? "Sending..." : "Submit"}
+            </button>
+
+            {/* Success Message */}
+            {success && (
+              <p className="text-center text-lg text-green-600 font-semibold">
+                Your message has been sent successfully!
+              </p>
+            )}
+          </form>
         </div>
 
-        <div className="row contact-page">
-          <div className="col-sm-6">
-            <div className="contact-map">
-              <iframe
-                src="https://www.google.com/maps/embed/v1/place?q=Minya,+Egypt&key=AIzaSyBSFRN6WWGYwmFi498qXXsD2UwkbmD74v4"
-                frameBorder="0"
-                scrolling="no"
-                marginHeight={0}
-                marginWidth={0}
-                style={{ width: "100%", height: "360px" }}
-                title="Our Location"
-              ></iframe>
-            </div>
-          </div>
-
-          <div className="col-sm-6">
-            <form
-              role="form"
-              name="ajax-form"
-              id="ajax-form"
-              className="form-main"
-              onSubmit={handleSubmit}
-            >
-              <div className="form-group">
-                <label htmlFor="name2">Name</label>
-                <input
-                  className="form-control"
-                  id="name2"
-                  name="name"
-                  type="text"
-                  value={formData.name}
-                  onChange={handleChange}
-                  onFocus={handleFocus}
-                  onBlur={handleBlur}
-                  disabled={isLoading}
-                />
-                {errors.name && (
-                  <div className="error" style={{ display: "block" }}>
-                    {errors.name}
-                  </div>
-                )}
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="email2">Email</label>
-                <input
-                  className="form-control"
-                  id="email2"
-                  name="email"
-                  type="text"
-                  value={formData.email}
-                  onChange={handleChange}
-                  onFocus={handleFocus}
-                  onBlur={handleBlur}
-                  disabled={isLoading}
-                />
-                {errors.email && (
-                  <div className="error" style={{ display: "block" }}>
-                    {errors.email}
-                  </div>
-                )}
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="message2">Message</label>
-                <textarea
-                  className="form-control textarea"
-                  id="message2"
-                  name="message"
-                  rows={5}
-                  value={formData.message}
-                  onChange={handleChange}
-                  onFocus={handleFocus}
-                  onBlur={handleBlur}
-                  disabled={isLoading}
-                ></textarea>
-                {errors.message && (
-                  <div className="error" style={{ display: "block" }}>
-                    {errors.message}
-                  </div>
-                )}
-              </div>
-
-              <div className="row">
-                <div className="col-xs-12">
-                  {success && (
-                    <div id="ajaxsuccess" className="text-success">
-                      E-mail was successfully sent.
-                    </div>
-                  )}
-                  {Object.keys(errors).length > 0 && (
-                    <div className="error" id="err-form">
-                      There was a problem validating the form, please check!
-                    </div>
-                  )}
-                  {errorMessage && (
-                    <div className="error" id="err-backend">
-                      {errorMessage}
-                    </div>
-                  )}
-                  <button
-                    type="submit"
-                    className="btn btn-primary btn-shadow btn-rounded w-md"
-                    id="send"
-                    disabled={isLoading}
-                  >
-                    {isLoading ? "Sending..." : "Submit"}
-                  </button>
-                </div>
-              </div>
-            </form>
-          </div>
+        {/* Map */}
+        <div className="bg-white rounded-3xl shadow-lg overflow-hidden h-auto max-h-[450px]">
+          <iframe
+            src="https://www.google.com/maps/embed/v1/place?q=Minya,+Egypt&key=AIzaSyBSFRN6WWGYwmFi498qXXsD2UwkbmD74v4"
+            frameBorder="0"
+            scrolling="no"
+            marginHeight={0}
+            marginWidth={0}
+            style={{ width: "100%", height: "100%", minHeight: "400px", borderRadius: "1rem" }}
+            title="Our Location"
+          ></iframe>
         </div>
       </div>
     </div>

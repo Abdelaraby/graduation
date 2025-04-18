@@ -2,24 +2,35 @@ import { Link } from "react-router-dom";
 
 const OrderConfirmation = () => {
   return (
-    <div className="max-w-screen-2xl mx-auto pt-20">
-      <h1 className="text-5xl font-light text-center">Order Confirmation</h1>
-      <p className="text-center mt-5 text-lg">
+    <div className="max-w-screen-lg mx-auto pt-20 px-5 min-h-screen bg-white">
+      {/* Header */}
+      <h1 className="text-4xl font-bold text-center text-transparent bg-clip-text bg-gradient-to-r from-[#8B0000] to-[#FF4500] mb-6">
+        Order Confirmation
+      </h1>
+      <p className="text-center mt-4 text-lg text-gray-700">
         Your order has been confirmed and will be shipped shortly.
       </p>
-      <Link
-        to="/shop"
-        className="text-white bg-secondaryBrown text-center text-xl font-normal tracking-[0.6px] leading-[72px] w-[400px] mx-auto mt-5 h-12 flex items-center justify-center max-md:text-base"
-      >
-        Continue shopping
-      </Link>
-      <Link
-        to="/order-history"
-        className="text-white bg-secondaryBrown text-center text-xl font-normal tracking-[0.6px] leading-[72px] w-[400px] mx-auto mt-5 h-12 flex items-center justify-center max-md:text-base"
-      >
-        See order history and status
-      </Link>
+
+      {/* Action Buttons */}
+      <div className="flex flex-col items-center space-y-4 mt-10">
+        {/* Continue Shopping Button */}
+        <Link
+          to="/shop"
+          className="w-full sm:w-[400px] h-14 text-lg font-bold text-white bg-gradient-to-r from-[#8B0000] to-[#FF4500] rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 active:scale-95 flex items-center justify-center"
+        >
+          Continue Shopping
+        </Link>
+
+        {/* See Order History Button */}
+        <Link
+          to="/order-history"
+          className="w-full sm:w-[400px] h-14 text-lg font-bold text-white bg-gradient-to-r from-[#8B0000] to-[#FF4500] rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 active:scale-95 flex items-center justify-center"
+        >
+          See Order History and Status
+        </Link>
+      </div>
     </div>
   );
 };
+
 export default OrderConfirmation;

@@ -1,18 +1,31 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-type ShopState = {
-  totalProducts: number;
-  showingProducts: number;
-};
+// Define the Product interface (if not already defined elsewhere)
+interface Product {
+  id: number;
+  image_url: string;
+  title: string;
+  price: string;
+  category: { id: number; name: string };
+  popularity: number;
+  stock: number;
+}
 
+interface ShopState {
+  showingProducts: number;
+  totalProducts: number;
+  products: Product[]; // Add this line
+}
+
+// Initialize the state with all required fields
 const initialState: ShopState = {
-  totalProducts: 0,
   showingProducts: 0,
+  totalProducts: 0,
+  products: [], // Initialize as an empty array
 };
 
 export const shopSlice = createSlice({
   name: "shop",
-  // `createSlice` will infer the state type from the `initialState` argument
   initialState,
   reducers: {
     setTotalProducts: (state, action: PayloadAction<number>) => {

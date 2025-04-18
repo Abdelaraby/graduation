@@ -3,8 +3,8 @@ import { Outlet } from "react-router-dom";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { ScrollToTop } from "../components";
-import { Circles } from "react-loader-spinner";
 import customFetch from "../axios/custom";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 interface Product {
   id: number;
@@ -51,9 +51,7 @@ const HomeLayout = () => {
 
   if (isLoading) {
     return (
-      <div className="h-screen flex items-center justify-center">
-        <Circles color="#000000" height={80} width={80} />
-      </div>
+      <LoadingSpinner />
     );
   }
 

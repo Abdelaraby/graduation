@@ -21,30 +21,49 @@ interface Product {
 interface ProductGridWrapperProps {
   children: ReactElement<{ products: Product[] }> | ReactElement<{ products: Product[] }>[];
   searchQuery?: string;
-  page: number;
+  sortCriteria?: string;
+  category?: string; // Add this line
 }
 
 const useProductsFromLayout = () => {
   return useOutletContext<{ products: Product[] }>();
 };
 
-const ProductGridWrapper = ({ children, searchQuery }: ProductGridWrapperProps) => {
+const ProductGridWrapper = ({ children, searchQuery, sortCriteria, category }: ProductGridWrapperProps) => {
   const { products } = useProductsFromLayout();
   const dispatch = useAppDispatch();
 
-  const filteredProducts = searchQuery
-    ? products.filter(product =>
-        product.title.toLowerCase().includes(searchQuery.toLowerCase())
-      )
+  // Apply category filter
+  const filteredByCategory = category
+    ? products.filter((product) => product.category.name.toLowerCase() === category.toLowerCase())
     : products;
 
+  // Apply search query
+  const filteredProducts = searchQuery
+    ? filteredByCategory.filter((product) =>
+        product.title.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : filteredByCategory;
+
+  // Apply sorting criteria
+  const sortedProducts = [...filteredProducts].sort((a, b) => {
+    if (sortCriteria === "price_asc") {
+      return parseFloat(a.price) - parseFloat(b.price);
+    } else if (sortCriteria === "price_desc") {
+      return parseFloat(b.price) - parseFloat(a.price);
+    } else if (sortCriteria === "popularity") {
+      return b.popularity - a.popularity;
+    }
+    return 0;
+  });
+
   useEffect(() => {
-    dispatch(setShowingProducts(filteredProducts.length));
+    dispatch(setShowingProducts(sortedProducts.length));
     dispatch(setTotalProducts(products.length));
-  }, [filteredProducts, products, dispatch]);
+  }, [sortedProducts, products, dispatch]);
 
   const childrenWithProps = React.Children.map(children, (child) =>
-    React.isValidElement(child) ? React.cloneElement(child, { products: filteredProducts }) : null
+    React.isValidElement(child) ? React.cloneElement(child, { products: sortedProducts }) : null
   );
 
   return <>{childrenWithProps}</>;

@@ -29,7 +29,6 @@ const ProductItem = ({
   const categoryValue =
     typeof category === "string" ? category : category?.name || "Unknown";
 
-  // Function to handle adding the product to the cart
   const handleAddToCart = async (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent the <Link>'s navigation behavior
     try {
@@ -55,10 +54,20 @@ const ProductItem = ({
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden max-w-sm w-[300px]">
-      {/* Image */}
-      <Link to={`/product/${id}`} className="block">
-        <img src={image} alt={title} className="w-full h-64 object-cover" />
+    <div className="bg-white rounded-lg shadow-md overflow-hidden max-w-sm w-[300px] group">
+      {/* Image Container with Dark Overlay */}
+      <Link to={`/product/${id}`} className="block relative">
+        <div className="relative w-full h-64 overflow-hidden">
+          {/* Image */}
+          <img
+            src={image}
+            alt={title}
+            className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-300"
+          />
+
+          {/* Dark Overlay */}
+          <div className="absolute inset-0 bg-black bg-opacity-50 group-hover:bg-opacity-70 transition-all duration-300"></div>
+        </div>
       </Link>
 
       {/* Product Details */}
@@ -66,7 +75,13 @@ const ProductItem = ({
         {/* Title and Category */}
         <div>
           <Link to={`/product/${id}`} className="block">
-            <p className="font-bold text-md line-clamp-2">{title}</p> {/* Limit to 2 lines */}
+            {/* Title */}
+            <p
+              className="font-bold text-md line-clamp-2 h-12 text-[#8B0000]"
+              style={{ lineHeight: "1.5rem" }}
+            >
+              {title}
+            </p>
           </Link>
           <p className="text-gray-500 text-sm mt-1">{categoryValue}</p>
         </div>
@@ -84,7 +99,7 @@ const ProductItem = ({
           {/* Add to Cart Button */}
           <button
             onClick={handleAddToCart}
-            className="w-full bg-black text-white py-2 px-4 rounded hover:bg-gray-800 transition-colors flex items-center justify-center"
+            className="w-full bg-black text-white py-2 px-4 rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 active:scale-95 flex items-center justify-center"
           >
             <span className="mr-2">+</span> ADD TO CART
           </button>
