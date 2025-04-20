@@ -1,6 +1,7 @@
+// src/pages/SingleOrderHistory.tsx
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { Link, useLoaderData, useNavigate, useParams } from "react-router-dom";
+import { Link, useLoaderData, useNavigate, LoaderFunction, LoaderFunctionArgs } from "react-router-dom";
 import customFetch from "../axios/custom";
 import { formatDate } from "../utils/formatDate";
 
@@ -61,19 +62,34 @@ interface OrderItem {
     updated_at: string;
   };
 }
-export const loader = async ({ params }: { params: { id: string } }) => {
+
+export const loader: LoaderFunction = async ({ params }: LoaderFunctionArgs) => {
   try {
-    console.log("Fetching order with ID:", params.id);
-    const response = await customFetch.get(`/orders/${params.id}`);
+    const id = params.id;
+    if (!id) {
+      throw new Response("Order ID is missing", { status: 400 });
+    }
+    console.log("Fetching order with ID:", id);
+    const response = await customFetch.get(`/orders/${id}`);
     console.log("API Response:", response.data);
-    return response.data.order || null;
+    if (!response.data.order) {
+      throw new Response("Order not found", { status: 404 });
+    }
+    return response.data.order as Order;
   } catch (error: any) {
     console.error("Failed to fetch order:", error);
     if (error.response?.status === 401) {
       localStorage.removeItem("user");
       toast.error("Session expired. Please login again.");
+      throw new Response("Unauthorized", { status: 401 });
     }
-    return null;
+    if (error.response?.status === 403) {
+      throw new Response("Forbidden", { status: 403 });
+    }
+    if (error.response?.status === 404) {
+      throw new Response("Order not found", { status: 404 });
+    }
+    throw error;
   }
 };
 
@@ -83,13 +99,23 @@ const SingleOrderHistory = () => {
   );
   const order = useLoaderData() as Order | null;
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     if (!user?.id) {
       toast.error("Please login to view this page");
       navigate("/login");
     }
+    setIsLoading(false);
   }, [user, navigate]);
+
+  if (isLoading) {
+    return (
+      <div className="max-w-screen-lg mx-auto pt-20 px-5 min-h-screen bg-white text-center">
+        <p className="text-xl text-gray-600">Loading...</p>
+      </div>
+    );
+  }
 
   if (!order) {
     return (
@@ -109,14 +135,10 @@ const SingleOrderHistory = () => {
 
   return (
     <div className="max-w-screen-lg mx-auto pt-20 px-5 min-h-screen bg-white">
-      {/* Header */}
       <h1 className="text-3xl font-bold text-center text-transparent bg-clip-text bg-gradient-to-r from-[#8B0000] to-[#FF4500] mb-10">
         Order Details - #{order.id}
       </h1>
-
-      {/* Order Summary Section */}
       <div className="bg-white p-6 rounded-2xl shadow-lg space-y-6">
-        {/* Order Information */}
         <div className="space-y-4">
           <p className="text-lg font-medium text-gray-900">
             <strong>Date:</strong>{" "}
@@ -129,8 +151,7 @@ const SingleOrderHistory = () => {
           <p className="text-lg font-medium text-gray-900">
             <strong>Total:</strong>{" "}
             <span className="font-normal">
-              $
-              {order.total ? parseFloat(order.total).toFixed(2) : "N/A"}
+              ${order.total ? parseFloat(order.total).toFixed(2) : "N/A"}
             </span>
           </p>
           <p className="text-lg font-medium text-gray-900">
@@ -149,8 +170,6 @@ const SingleOrderHistory = () => {
             <span className="font-normal">{order.payment_type}</span>
           </p>
         </div>
-
-        {/* Order Items Table */}
         <div>
           <h2 className="text-2xl font-semibold text-gray-900 mb-4">Order Items</h2>
           <table className="min-w-full bg-white border border-gray-200 rounded-lg shadow-sm">
@@ -172,7 +191,10 @@ const SingleOrderHistory = () => {
             </thead>
             <tbody>
               {order.order_items.map((item) => (
-                <tr key={item.id} className="hover:bg-gray-50 transition-colors duration-300">
+                <tr
+                  key={item.id}
+                  className="hover:bg-gray-50 transition-colors duration-300"
+                >
                   <td className="py-3 px-6 text-sm font-medium text-gray-900">
                     {item.product.title}
                   </td>
@@ -180,8 +202,7 @@ const SingleOrderHistory = () => {
                     {item.quantity}
                   </td>
                   <td className="py-3 px-6 text-center text-sm text-gray-500">
-                    $
-                    {item.price ? parseFloat(item.price).toFixed(2) : "N/A"}
+                    ${item.price ? parseFloat(item.price).toFixed(2) : "N/A"}
                   </td>
                   <td className="py-3 px-6 text-center text-sm font-semibold text-gray-900">
                     $
@@ -194,8 +215,6 @@ const SingleOrderHistory = () => {
             </tbody>
           </table>
         </div>
-
-        {/* Back to Order History Button */}
         <div className="flex justify-center">
           <Link
             to="/order-history"

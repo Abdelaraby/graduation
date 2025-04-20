@@ -2,12 +2,15 @@ import React, { useState } from "react";
 import { HiTrash as TrashIcon } from "react-icons/hi2";
 import { Button } from "../components";
 import { useAppDispatch, useAppSelector } from "../hooks";
-import { removeProductFromTheCart, clearCart, updateProductQuantity } from "../features/cart/cartSlice";
+import {
+  removeProductFromTheCart,
+  clearCart,
+  updateProductQuantity,
+} from "../features/cart/cartSlice";
 import customFetch from "../axios/custom";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { checkCheckoutFormData } from "../utils/checkCheckoutFormData";
-import LocationPicker from "../components/LocationPicker";
 
 const paymentMethods = [
   { id: "paymob", title: "Paymob (Card)" },
@@ -49,24 +52,26 @@ const Checkout: React.FC = () => {
       toast.error("تعذر استرجاع العنوان من الموقع المحدد");
     }
   };
+
   const handleUpdateQuantity = async (id: string, quantity: number) => {
     if (quantity < 1) {
-      toast.error("Quantity must be at least 1");
+      toast.error("الكمية يجب أن تكون 1 على الأقل");
       return;
     }
-  
+
     try {
       const response = await customFetch.put(`/cart/${id}`, { quantity });
       if (response.data.success) {
         dispatch(updateProductQuantity({ id, quantity }));
-        toast.success("Quantity updated successfully");
+        toast.success("تم تحديث الكمية بنجاح");
       } else {
-        toast.error(response.data.message);
+        toast.error(response.data.message || "فشل تحديث الكمية");
       }
     } catch (error) {
-      toast.error("Failed to update quantity");
+      toast.error("فشل تحديث الكمية");
     }
   };
+
   const handleGetCurrentLocation = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -86,100 +91,89 @@ const Checkout: React.FC = () => {
     }
   };
 
-  const handleLocationSelected = async (lat: number, lng: number) => {
-    setLocation({ lat, lng });
-    await fetchAddressFromCoordinates(lat, lng);
-  };
-
-
   const handleCheckoutSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
 
     const checkoutData = {
-        email_address: formData.get("email_address") as string,
-        address: addressData.address,
-        city: addressData.city,
-        country: addressData.country,
-        region: addressData.region,
-        postal_code: addressData.postal_code,
-        phone: formData.get("phone") as string,
-        payment_type: selectedPaymentMethod,
-        subtotal: Number(subtotal),
-        products: productsInCart.map((product) => ({ id: Number(product.id) })),
-        latitude: location ? location.lat.toString() : "",
-        longitude: location ? location.lng.toString() : "",
-        amount: Math.round((Number(subtotal) + (subtotal ? 5 + Number(subtotal) / 5 : 0)) * 100),
+      email_address: formData.get("email_address") as string,
+      address: addressData.address,
+      city: addressData.city,
+      country: addressData.country,
+      region: addressData.region,
+      postal_code: addressData.postal_code,
+      phone: formData.get("phone") as string,
+      payment_type: selectedPaymentMethod,
+      subtotal: Number(subtotal),
+      products: productsInCart.map((product) => ({ id: Number(product.id) })),
+      latitude: location ? location.lat.toString() : "",
+      longitude: location ? location.lng.toString() : "",
+      amount: Math.round((Number(subtotal) + (subtotal ? 5 + Number(subtotal) / 5 : 0)) * 100),
     };
 
-    if (!checkCheckoutFormData(checkoutData)) return;
+    if (!checkCheckoutFormData(checkoutData)) {
+      toast.error("يرجى ملء جميع الحقول المطلوبة بشكل صحيح");
+      return;
+    }
 
     setIsSubmitting(true);
     try {
-        if (selectedPaymentMethod === "paymob") {
-            const response = await customFetch.post("/generatePaymentKey", checkoutData);
-            console.log("Generate Payment Key Response:", response.data);
+      if (selectedPaymentMethod === "paymob") {
+        const response = await customFetch.post("/generatePaymentKey", checkoutData);
+        console.log("Generate Payment Key Response:", response.data);
 
-        
-
-            const { payment_key, order_id } = response.data;
-            if (!payment_key) {
-                toast.error("مفتاح الدفع غير متوفر");
-                throw new Error("مفتاح الدفع غير متوفر");
-            }
-
-            const iframeId = 791606;
-            const iframeURL = `https://accept.paymob.com/api/acceptance/iframes/${iframeId}?payment_token=${payment_key}`;
-            window.location.href = iframeURL;
-        } else if (selectedPaymentMethod === "cash") {
-          const response = await customFetch.post("/orders", checkoutData);
-          if (response.data.success && response.status === 201) {
-            toast.success("تم تسجيل الطلب بنجاح");
-            dispatch(clearCart());
-            navigate("/order-confirmation", { state: { orderId: response.data.order_id } });
-          } else {
-            throw new Error(response.data.message || "فشل تسجيل الطلب");
-          }
-  
+        const { payment_key, order_id } = response.data;
+        if (!payment_key || !order_id) {
+          toast.error("مفتاح الدفع أو رقم الطلب غير متوفر");
+          throw new Error("مفتاح الدفع أو رقم الطلب غير متوفر");
         }
+
+        const iframeId = 913855; // Replace with your actual Paymob iframe ID
+        const iframeURL = `https://accept.paymob.com/api/acceptance/iframes/${iframeId}?payment_token=${payment_key}`;
+        window.location.href = iframeURL;
+      } else if (selectedPaymentMethod === "cash") {
+        const response = await customFetch.post("/orders", checkoutData);
+        if (response.data.success && response.status === 201) {
+          toast.success("تم تسجيل الطلب بنجاح");
+          dispatch(clearCart());
+          navigate("/order-confirmation", { state: { orderId: response.data.order_id } });
+        } else {
+          throw new Error(response.data.message || "فشل تسجيل الطلب");
+        }
+      }
     } catch (error) {
-        console.error("API Error Response:", error);
-        let errorMessage = "حصل خطأ، حاول مرة أخرى";
-        if (error instanceof Error && error.message) {
-            errorMessage = error.message;
-        } else if (typeof error === "object" && error !== null && "response" in error) {
-            const axiosError = error as any;
-            errorMessage =
-                axiosError.response?.data?.message ||
-                axiosError.response?.data?.errors?.[0] ||
-                errorMessage;
-        }
-        toast.error(errorMessage);
+      console.error("Checkout Error:", error);
+      let errorMessage = "حصل خطأ، حاول مرة أخرى";
+      if (error instanceof Error && error.message) {
+        errorMessage = error.message;
+      } else if (typeof error === "object" && error !== null && "response" in error) {
+        const axiosError = error as any;
+        errorMessage =
+          axiosError.response?.data?.message ||
+          axiosError.response?.data?.errors?.[0] ||
+          errorMessage;
+      }
+      toast.error(errorMessage);
     } finally {
-        setIsSubmitting(false);
+      setIsSubmitting(false);
     }
-};
+  };
 
   return (
-    <div className="max-w-screen-lg mx-auto mt-10 px-0 min-h-screen bg-white">
-      {/* Header */}
+    <div className="max-w-screen-lg mx-auto mt-10 px-4 min-h-screen bg-white">
       <h1 className="text-3xl font-bold text-center mt-10 text-transparent bg-clip-text bg-gradient-to-r from-[#8B0000] to-[#FF4500]">
-        Checkout
+        الدفع
       </h1>
-
-      {/* Form Section */}
       <form
         onSubmit={handleCheckoutSubmit}
         className="mt-10 grid grid-cols-1 lg:grid-cols-2 gap-8"
       >
-        {/* Left Column - Shipping and Payment Details */}
         <div className="space-y-6">
-          {/* Contact Information */}
           <div className="bg-white rounded-2xl shadow-md p-6">
-            <h2 className="text-lg font-medium text-gray-900 mb-4">Contact Information</h2>
+            <h2 className="text-lg font-medium text-gray-900 mb-4">معلومات التواصل</h2>
             <div>
               <label htmlFor="email_address" className="block text-sm font-medium text-gray-700">
-                Email Address
+                البريد الإلكتروني
               </label>
               <input
                 type="email"
@@ -191,22 +185,19 @@ const Checkout: React.FC = () => {
               />
             </div>
           </div>
-
-          {/* Shipping Information */}
           <div className="bg-white rounded-2xl shadow-md p-6">
-            <h2 className="text-lg font-medium text-gray-900 mb-4">Shipping Information</h2>
+            <h2 className="text-lg font-medium text-gray-900 mb-4">معلومات الشحن</h2>
             <Button
-              text="Use my current location"
+              text="استخدام موقعي الحالي"
               mode="primary"
               type="button"
               onClick={handleGetCurrentLocation}
               className="w-full h-14 text-lg font-bold text-white bg-gradient-to-r from-[#8B0000] to-[#FF4500] rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 active:scale-95"
             />
             <div className="mt-6 grid grid-cols-1 gap-y-6 sm:grid-cols-2 sm:gap-x-4">
-              {/* Address */}
               <div>
                 <label htmlFor="address" className="block text-sm font-medium text-gray-700">
-                  Address
+                  العنوان
                 </label>
                 <input
                   type="text"
@@ -221,11 +212,9 @@ const Checkout: React.FC = () => {
                   className="mt-1 block w-full h-14 px-5 text-lg rounded-full border border-gray-300 focus:border-transparent outline-none transition-all duration-300 shadow-md hover:shadow-lg bg-gray-100"
                 />
               </div>
-
-              {/* City */}
               <div>
                 <label htmlFor="city" className="block text-sm font-medium text-gray-700">
-                  City
+                  المدينة
                 </label>
                 <input
                   type="text"
@@ -240,11 +229,9 @@ const Checkout: React.FC = () => {
                   className="mt-1 block w-full h-14 px-5 text-lg rounded-full border border-gray-300 focus:border-transparent outline-none transition-all duration-300 shadow-md hover:shadow-lg bg-gray-100"
                 />
               </div>
-
-              {/* Country */}
               <div>
                 <label htmlFor="country" className="block text-sm font-medium text-gray-700">
-                  Country
+                  الدولة
                 </label>
                 <input
                   type="text"
@@ -259,11 +246,9 @@ const Checkout: React.FC = () => {
                   className="mt-1 block w-full h-14 px-5 text-lg rounded-full border border-gray-300 focus:border-transparent outline-none transition-all duration-300 shadow-md hover:shadow-lg bg-gray-100"
                 />
               </div>
-
-              {/* Region */}
               <div>
                 <label htmlFor="region" className="block text-sm font-medium text-gray-700">
-                  State / Province
+                  المنطقة / المحافظة
                 </label>
                 <input
                   type="text"
@@ -278,11 +263,9 @@ const Checkout: React.FC = () => {
                   className="mt-1 block w-full h-14 px-5 text-lg rounded-full border border-gray-300 focus:border-transparent outline-none transition-all duration-300 shadow-md hover:shadow-lg bg-gray-100"
                 />
               </div>
-
-              {/* Postal Code */}
               <div>
                 <label htmlFor="postal_code" className="block text-sm font-medium text-gray-700">
-                  Postal Code
+                  الرمز البريدي
                 </label>
                 <input
                   type="text"
@@ -297,11 +280,9 @@ const Checkout: React.FC = () => {
                   className="mt-1 block w-full h-14 px-5 text-lg rounded-full border border-gray-300 focus:border-transparent outline-none transition-all duration-300 shadow-md hover:shadow-lg bg-gray-100"
                 />
               </div>
-
-              {/* Phone */}
               <div>
                 <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
-                  Phone
+                  رقم الهاتف
                 </label>
                 <input
                   type="text"
@@ -314,10 +295,8 @@ const Checkout: React.FC = () => {
               </div>
             </div>
           </div>
-
-          {/* Payment Method */}
           <div className="bg-white rounded-2xl shadow-md p-6">
-            <h2 className="text-lg font-medium text-gray-900 mb-4">Payment Method</h2>
+            <h2 className="text-lg font-medium text-gray-900 mb-4">طريقة الدفع</h2>
             <fieldset className="space-y-4">
               {paymentMethods.map((paymentMethod) => (
                 <div key={paymentMethod.id} className="flex items-center">
@@ -345,14 +324,10 @@ const Checkout: React.FC = () => {
               </p>
             )}
           </div>
-
-         
         </div>
-
-        {/* Right Column - Order Summary */}
         <div>
           <div className="bg-white rounded-2xl shadow-md p-6 space-y-6">
-            <h2 className="text-lg font-medium text-gray-900">Order Summary</h2>
+            <h2 className="text-lg font-medium text-gray-900">ملخص الطلب</h2>
             <ul role="list" className="divide-y divide-gray-200">
               {productsInCart.map((product) => (
                 <li key={product?.id} className="flex py-4">
@@ -373,27 +348,27 @@ const Checkout: React.FC = () => {
                       </h4>
                     </div>
                     <div className="flex flex-1 items-end justify-between pt-2">
-  <p className="mt-1 text-sm font-medium text-gray-900">
-    ${Number(product?.price).toFixed(2)}
-  </p>
-  <div className="ml-4">
-    <label htmlFor={`quantity-${product.id}`} className="sr-only">
-      Quantity
-    </label>
-    <input
-      type="number"
-      id={`quantity-${product.id}`}
-      name="quantity"
-      value={product.quantity || 1} // Ensure a default value of 1 if quantity is undefined
-      onChange={(e) => {
-        const newQuantity = parseInt(e.target.value) || 1; // Ensure the value is at least 1
-        handleUpdateQuantity(product.id, newQuantity);
-      }}
-      min="1"
-      className="w-16 h-8 px-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:border-[#8B0000]"
-    />
-  </div>
-</div>
+                      <p className="mt-1 text-sm font-medium text-gray-900">
+                        ${Number(product?.price).toFixed(2)}
+                      </p>
+                      <div className="ml-4">
+                        <label htmlFor={`quantity-${product.id}`} className="sr-only">
+                          الكمية
+                        </label>
+                        <input
+                          type="number"
+                          id={`quantity-${product.id}`}
+                          name="quantity"
+                          value={product.quantity || 1}
+                          onChange={(e) => {
+                            const newQuantity = parseInt(e.target.value) || 1;
+                            handleUpdateQuantity(product.id, newQuantity);
+                          }}
+                          min="1"
+                          className="w-16 h-8 px-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:border-[#8B0000]"
+                        />
+                      </div>
+                    </div>
                   </div>
                   <button
                     type="button"
@@ -402,7 +377,7 @@ const Checkout: React.FC = () => {
                       dispatch(removeProductFromTheCart({ id: product?.id }))
                     }
                   >
-                    <span className="sr-only">Remove</span>
+                    <span className="sr-only">إزالة</span>
                     <TrashIcon className="h-5 w-5" aria-hidden="true" />
                   </button>
                 </li>
@@ -410,21 +385,21 @@ const Checkout: React.FC = () => {
             </ul>
             <dl className="space-y-4">
               <div className="flex items-center justify-between">
-                <dt className="text-sm text-gray-600">Subtotal</dt>
+                <dt className="text-sm text-gray-600">المجموع الفرعي</dt>
                 <dd className="text-sm font-medium text-gray-900">${Number(subtotal).toFixed(2)}</dd>
               </div>
               <div className="flex items-center justify-between">
-                <dt className="text-sm text-gray-600">Shipping</dt>
+                <dt className="text-sm text-gray-600">الشحن</dt>
                 <dd className="text-sm font-medium text-gray-900">${subtotal ? 5 : 0}</dd>
               </div>
               <div className="flex items-center justify-between">
-                <dt className="text-sm text-gray-600">Taxes</dt>
+                <dt className="text-sm text-gray-600">الضرائب</dt>
                 <dd className="text-sm font-medium text-gray-900">
                   ${subtotal ? (Number(subtotal) / 5).toFixed(2) : 0}
                 </dd>
               </div>
               <div className="flex items-center justify-between border-t border-gray-200 pt-4">
-                <dt className="text-base font-medium">Total</dt>
+                <dt className="text-base font-medium">الإجمالي</dt>
                 <dd className="text-base font-medium text-gray-900">
                   ${(subtotal ? Number(subtotal) + 5 + Number(subtotal) / 5 : 0).toFixed(2)}
                 </dd>
