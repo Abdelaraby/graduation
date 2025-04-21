@@ -18,7 +18,7 @@ const OrderConfirmation = () => {
       {orderId && (
         <div className="mt-6 text-center">
           <p className="text-gray-700">Order ID: <span className="font-bold">{orderId}</span></p>
-          <p className="text-gray-700">Estimated Delivery: 3-5 business days</p>
+
         </div>
       )}
 
