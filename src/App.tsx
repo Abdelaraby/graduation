@@ -1,4 +1,3 @@
-// src/App.tsx
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import {
   Cart,
@@ -25,97 +24,79 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import PaymobResponseHandler from "./components/paymobResponse";
 
-
 const router = createBrowserRouter([
   {
     path: "/",
     element: <HomeLayout />,
-  // Handle errors at the root level
     children: [
       {
         index: true,
         element: <Landing />,
-      
       },
       {
         path: "shop",
         element: <Shop />,
-      
       },
       {
         path: "shop/:category",
         element: <Shop />,
         loader: shopCategoryLoader,
-      
       },
       {
         path: "product/:id",
         element: <SingleProduct />,
-      
       },
       {
         path: "cart",
         element: <Cart />,
-       
       },
       {
         path: "checkout",
         element: <Checkout />,
         action: checkoutAction,
-       
       },
       {
         path: "search",
         action: searchAction,
         element: <Search />,
-   
       },
       {
         path: "login",
         element: <Login />,
-     
       },
       {
         path: "register",
         element: <Register />,
-  
       },
       {
         path: "order-confirmation",
         element: <OrderConfirmation />,
-      
       },
       {
         path: "user-profile",
         element: <UserProfile />,
-      
       },
       {
         path: "order-history",
         element: <OrderHistory />,
         loader: orderHistoryLoader,
-       
       },
       {
         path: "orders/:id",
         element: <SingleOrderHistory />,
         loader: singleOrderLoader,
-      
       },
       {
         path: "paymob-response",
         element: <PaymobResponseHandler />,
-    
       },
       {
         path: "services",
         element: <Services />,
-
       },
       {
         path: "contact",
         element: <Contact />,
-    
       },
     ],
   },

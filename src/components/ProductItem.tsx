@@ -1,7 +1,9 @@
 import React from "react";
 import toast from "react-hot-toast";
 import { Link } from "react-router-dom";
-import customFetch from "../axios/custom";
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { addProductToCartWithLoginCheck, AppDispatch } from "../features/cart/cartSlice";
 
 interface Category {
   id: number;
@@ -12,7 +14,7 @@ interface Product {
   id: string;
   image: string;
   title: string;
-  category: string | Category; // Support for both types
+  category: string | Category;
   price: number;
   popularity: number;
   stock: number;
@@ -26,31 +28,28 @@ const ProductItem = ({
   price,
   stock,
 }: Product) => {
+  const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate();
+
   const categoryValue =
     typeof category === "string" ? category : category?.name || "Unknown";
 
-  const handleAddToCart = async (e: React.MouseEvent) => {
+  const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent the <Link>'s navigation behavior
-    try {
-      const newProduct = {
-        product_id: id.toString(),
-        title: title,
-        price: parseFloat(price.toFixed(2)), // Ensure price is a valid float
-        quantity: 1,
-        image: image,
-        stock: stock > 0, // Check if the product is in stock
-      };
-
-      const response = await customFetch.post("/cart", newProduct);
-      if (response.data.success) {
-        toast.success("Product added to the cart");
-      } else {
-        toast.error(response.data.message || "Failed to add product to cart");
-      }
-    } catch (error) {
-      console.error("Add to Cart Error:", error);
-      toast.error("Failed to add product to cart");
-    }
+    dispatch(
+      addProductToCartWithLoginCheck(
+        {
+          id,
+          product_id: id.toString(),
+          title,
+          price: parseFloat(price.toFixed(2)),
+          quantity: 1,
+          image,
+          stock: stock > 0,
+        },
+        navigate
+      )
+    );
   };
 
   return (

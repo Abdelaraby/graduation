@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Button, ProductItem, QuantityInput, Dropdown } from "../components";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { AppDispatch, addProductToCartWithLoginCheck } from "../features/cart/cartSlice";
 import WithNumberInputWrapper from "../utils/withNumberInputWrapper";
 import { formatCategoryName } from "../utils/formatCategoryName";
 import toast from "react-hot-toast";
@@ -34,6 +36,8 @@ const SingleProduct = () => {
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
 
   const params = useParams<{ id: string }>();
+  const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate();
   const QuantityInputUpgrade = WithNumberInputWrapper(QuantityInput);
 
   useEffect(() => {
@@ -70,27 +74,22 @@ const SingleProduct = () => {
     fetchProducts();
   }, [params.id]);
 
-  const handleAddToCart = async () => {
+  const handleAddToCart = () => {
     if (singleProduct) {
-      try {
-        const newProduct = {
-          product_id: singleProduct.id.toString(),
-          title: singleProduct.title,
-          price: parseFloat(singleProduct.price),
-          quantity: quantity,
-          image: singleProduct.image_url,
-          stock: singleProduct.stock > 0,
-        };
-        const response = await customFetch.post("/cart", newProduct);
-        if (response.data.success) {
-          toast.success("Product added to the cart");
-        } else {
-          toast.error(response.data.message);
-        }
-      } catch (error) {
-        console.error("Add to Cart Error:", error);
-        toast.error("Failed to add product to cart");
-      }
+      dispatch(
+        addProductToCartWithLoginCheck(
+          {
+            id: singleProduct.id.toString(),
+            product_id: singleProduct.id.toString(),
+            title: singleProduct.title,
+            price: parseFloat(singleProduct.price),
+            quantity,
+            image: singleProduct.image_url,
+            stock: singleProduct.stock > 0,
+          },
+          navigate
+        )
+      );
     }
   };
 
@@ -132,7 +131,7 @@ const SingleProduct = () => {
                 )}
               </p>
               <p className="text-base font-bold text-[#8B0000]">
-                ${singleProduct.price}
+                ${parseFloat(singleProduct.price).toFixed(2)}
               </p>
             </div>
           </div>
@@ -164,45 +163,44 @@ const SingleProduct = () => {
       </div>
 
       {/* Description and Details Dropdowns in One Row */}
-{/* Description and Details Dropdowns in One Row */}
-<div className="w-full flex gap-4 mt-10">
-  {/* Description Dropdown */}
-  <div className="w-1/2">
-    <Dropdown
-      dropdownTitle="Description"
-      isOpen={isDescriptionOpen} // Controlled state
-      toggle={() => setIsDescriptionOpen((prev) => !prev)} // External toggle
-      className="bg-white rounded-lg shadow-md p-4"
-    >
-      <p className="text-gray-700">{singleProduct.description || "No description available."}</p>
-    </Dropdown>
-  </div>
+      <div className="w-full flex gap-4 mt-10">
+        {/* Description Dropdown */}
+        <div className="w-1/2">
+          <Dropdown
+            dropdownTitle="Description"
+            isOpen={isDescriptionOpen}
+            toggle={() => setIsDescriptionOpen((prev) => !prev)}
+            className="bg-white rounded-lg shadow-md p-4"
+          >
+            <p className="text-gray-700">{singleProduct.description || "No description available."}</p>
+          </Dropdown>
+        </div>
 
-  {/* Details Dropdown */}
-  <div className="w-1/2">
-    <Dropdown
-      dropdownTitle="Details"
-      isOpen={isDetailsOpen} // Controlled state
-      toggle={() => setIsDetailsOpen((prev) => !prev)} // External toggle
-      className="bg-white rounded-lg shadow-md p-4"
-    >
-      <div className="flex flex-col gap-2">
-        <p className="text-gray-700 font-medium">
-          Category:{" "}
-          {typeof singleProduct.category === "string"
-            ? singleProduct.category
-            : singleProduct.category?.name || ""}
-        </p>
-        <p className="text-gray-700 font-medium">
-          Popularity: {singleProduct.popularity}
-        </p>
-        <p className="text-gray-700 font-medium">
-          Stock: {singleProduct.stock}
-        </p>
+        {/* Details Dropdown */}
+        <div className="w-1/2">
+          <Dropdown
+            dropdownTitle="Details"
+            isOpen={isDetailsOpen}
+            toggle={() => setIsDetailsOpen((prev) => !prev)}
+            className="bg-white rounded-lg shadow-md p-4"
+          >
+            <div className="flex flex-col gap-2">
+              <p className="text-gray-700 font-medium">
+                Category:{" "}
+                {typeof singleProduct.category === "string"
+                  ? singleProduct.category
+                  : singleProduct.category?.name || ""}
+              </p>
+              <p className="text-gray-700 font-medium">
+                Popularity: {singleProduct.popularity}
+              </p>
+              <p className="text-gray-700 font-medium">
+                Stock: {singleProduct.stock}
+              </p>
+            </div>
+          </Dropdown>
+        </div>
       </div>
-    </Dropdown>
-  </div>
-</div>
 
       {/* Similar Products Section */}
       <div className="mt-24">

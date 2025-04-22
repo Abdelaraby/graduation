@@ -22,16 +22,28 @@ const UserProfile = () => {
 
   const fetchUser = async (userId: number | string) => {
     try {
-      const response = await customFetch(`/users/${userId}`);
+      const token = localStorage.getItem("token");
+      if (!token) {
+        toast.error("No authentication token found");
+        navigate("/login");
+        return;
+      }
+
+      const response = await customFetch(`/users/${userId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
       if (response.data.success && response.data.user) {
         setUser(response.data.user);
       } else {
         toast.error("User not found or unauthorized.");
         navigate("/login");
       }
-    } catch (error) {
+    } catch (error: unknown) { // تغيير نوع الخطأ إلى unknown
       toast.error("Failed to fetch user profile.");
-      console.error(error);
+      console.error(error); // طباعة الخطأ
       navigate("/login");
     } finally {
       setLoading(false);

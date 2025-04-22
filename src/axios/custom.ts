@@ -6,6 +6,7 @@ const customFetch = axios.create({
         Accept: "application/json"
     }
 })
+
 // Add Authorization token to request headers if available
 customFetch.interceptors.request.use(
   (config) => {
