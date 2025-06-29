@@ -87,8 +87,8 @@ const Contact: React.FC = () => {
         </div>
         <div className="flex items-center gap-4">
           <i className="fa fa-globe fa-2x text-[#8B0000]"></i>
-          <a href="https://desertrescue.com" className="text-[#8B0000] hover:text-[#FF4500] transition-colors duration-300">
-            desertrescue.com
+          <a href="https://fixandfuel.com" className="text-[#8B0000] hover:text-[#FF4500] transition-colors duration-300">
+            fix&fuel.com
           </a>
         </div>
         <div className="flex items-center gap-4">
@@ -98,7 +98,7 @@ const Contact: React.FC = () => {
         <div className="flex items-center gap-4">
           <i className="fa fa-envelope fa-2x text-[#8B0000]"></i>
           <a href="mailto:desertrescue@gmail.com" className="text-[#8B0000] hover:text-[#FF4500] transition-colors duration-300">
-            desertrescue@gmail.com
+        Fix&Fuel@gmail.com
           </a>
         </div>
       </div>

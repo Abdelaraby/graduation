@@ -61,7 +61,7 @@ const SidebarMenu = ({
               to="/"
               className="text-2xl font-bold tracking-[1.08px] max-sm:text-3xl max-[400px]:text-2xl text-black"
             >
-              Desert Rescue
+             Fix & Fuel
             </Link>
           </div>
 

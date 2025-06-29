@@ -33,7 +33,7 @@ const CategoriesSection = () => {
                 key={category.id}
                 categoryTitle={category.name}
                 image={category.image}
-                link={category.name.toLowerCase().replace(/\s+/g, "-")}
+                categoryId={category.id.toString()}
               />
             ))
           ) : (

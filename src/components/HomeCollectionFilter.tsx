@@ -4,10 +4,10 @@ const HomeCollectionFilter = () => {
       
       <ul className="flex gap-8 items-center text-black text-2xl tracking-[0.72px] max-sm:text-xl max-[450px]:text-lg max-[450px]:gap-2 max-[350px]:text-base">
         <li className="text-black cursor-pointer">All</li>
-        <li className="text-secondaryBrown cursor-pointer">Tops</li>
-        <li className="text-secondaryBrown cursor-pointer">Dresses</li>
-        <li className="text-secondaryBrown cursor-pointer">Shorts</li>
-        <li className="text-secondaryBrown cursor-pointer">Jeans</li>
+        <li className="text-secondaryBrown cursor-pointer">اطارات</li>
+        <li className="text-secondaryBrown cursor-pointer">بطاريات</li>
+        <li className="text-secondaryBrown cursor-pointer">قطع غيار </li>
+        <li className="text-secondaryBrown cursor-pointer">وقود</li>
       </ul>
     </div>
   );

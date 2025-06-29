@@ -161,7 +161,7 @@ const Cart = () => {
                       </div>
                     </div>
 
-                    {/* Stock Status */}
+                    {/* Stock Status
                     <p className="mt-4 flex space-x-2 text-sm text-gray-700">
                       {product.stock ? (
                         <CheckIcon
@@ -170,12 +170,12 @@ const Cart = () => {
                         />
                       ) : (
                         <XMarkIcon
-                          className="h-5 w-5 flex-shrink-0 text-red-600"
+                          className="h-5 w-5 flex-shrink-0 text-red-00"
                           aria-hidden="true"
                         />
                       )}
-                      <span>{product.stock ? "In stock" : "Out of stock"}</span>
-                    </p>
+                      {/* <span>{product.stock ? "In stock" : "Out of stock"}</span> */}
+                    {/* </p> */} 
                   </div>
                 </li>
               ))

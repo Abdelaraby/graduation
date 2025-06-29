@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import {
   ProductGrid,
   ProductGridWrapper,
@@ -7,7 +7,9 @@ import {
 } from "../components";
 
 const ShopPageContent = () => {
-  const { category } = useParams(); // Retrieve the category from the URL
+  const [searchParams] = useSearchParams();
+  const categoryId = searchParams.get("category"); // Get category ID from query param
+
   const [sortCriteria, setSortCriteria] = useState<string>("");
 
   return (
@@ -16,7 +18,7 @@ const ShopPageContent = () => {
       <ShopFilterAndSort sortCriteria={sortCriteria} setSortCriteria={setSortCriteria} />
 
       {/* Product Grid */}
-      <ProductGridWrapper sortCriteria={sortCriteria} category={category || ""}>
+      <ProductGridWrapper sortCriteria={sortCriteria} categoryId={categoryId}>
         <ProductGrid />
       </ProductGridWrapper>
 

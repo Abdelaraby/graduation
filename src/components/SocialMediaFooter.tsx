@@ -1,25 +1,14 @@
 import React from "react";
-import { FaFacebookF } from "react-icons/fa6";
-import { FaInstagram } from "react-icons/fa6";
-import { FaTiktok } from "react-icons/fa6";
-import { FaLinkedinIn } from "react-icons/fa6";
-import { FaPinterestP } from "react-icons/fa6";
-import { FaYoutube } from "react-icons/fa6";
+import { FaWhatsapp, FaEnvelope, FaPhone } from "react-icons/fa6";
 
 const SocialMediaFooter = () => {
-  // Function to handle icon clicks
   const handleIconClick = (platform: string) => {
-    // Replace these URLs with the actual links to your social media profiles
     const socialMediaLinks: { [key: string]: string } = {
-      facebook: "https://www.facebook.com",
-      instagram: "https://www.instagram.com",
-      tiktok: "https://www.tiktok.com",
-      linkedin: "https://www.linkedin.com",
-      pinterest: "https://www.pinterest.com",
-      youtube: "https://www.youtube.com",
+      Envelope: "https://mail.google.com/mail/?view=cm&to=fatmahussein822003@gmail.com",
+      FaWhatsapp: "https://wa.me/201126490568?text=مرحبا%20نحن%20هنا%20لمساعدتك",
+      phone: "tel:+201126490568"
     };
 
-    // Open the link in a new tab
     window.open(socialMediaLinks[platform], "_blank");
   };
 
@@ -31,47 +20,39 @@ const SocialMediaFooter = () => {
 
         {/* Social Media Icons */}
         <div className="flex gap-4 text-white">
-          {/* Facebook */}
-          <FaFacebookF
+          {/* Envelope */}
+          <FaEnvelope
             className="w-4 h-5 cursor-pointer transition-all duration-300 hover:text-blue-500"
-            onClick={() => handleIconClick("facebook")}
+            onClick={() => handleIconClick("Envelope")}
           />
-          {/* Instagram */}
-          <FaInstagram
-            className="w-4 h-5 cursor-pointer transition-all duration-300 hover:text-pink-500"
-            onClick={() => handleIconClick("instagram")}
+
+          {/* Whatsapp */}
+          <FaWhatsapp
+            className="w-4 h-5 cursor-pointer transition-all duration-300 hover:text-green-500"
+            onClick={() => handleIconClick("FaWhatsapp")}
           />
-          {/* TikTok */}
-          <FaTiktok
-            className="w-4 h-5 cursor-pointer transition-all duration-300 hover:text-black"
-            onClick={() => handleIconClick("tiktok")}
-          />
-          {/* LinkedIn */}
-          <FaLinkedinIn
-            className="w-4 h-5 cursor-pointer transition-all duration-300 hover:text-blue-700"
-            onClick={() => handleIconClick("linkedin")}
-          />
-          {/* Pinterest */}
-          <FaPinterestP
-            className="w-4 h-5 cursor-pointer transition-all duration-300 hover:text-red-600"
-            onClick={() => handleIconClick("pinterest")}
-          />
-          {/* YouTube */}
-          <FaYoutube
-            className="w-4 h-5 cursor-pointer transition-all duration-300 hover:text-red-700"
-            onClick={() => handleIconClick("youtube")}
+
+          {/* Phone */}
+          <FaPhone
+            className="w-4 h-5 cursor-pointer transition-all duration-300 hover:text-yellow-500"
+            onClick={() => handleIconClick("phone")}
           />
         </div>
 
-        {/* Spacer and Copyright Text */}
+        {/* Copyright */}
         <div className="mt-5">
           <p className="text-base text-center max-sm:text-sm text-white">
             All rights reserved ©2025
           </p>
         </div>
       </div>
+
+    
     </div>
   );
 };
+
+
+  
 
 export default SocialMediaFooter;

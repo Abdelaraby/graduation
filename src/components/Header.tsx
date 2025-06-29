@@ -22,7 +22,7 @@ const Header = () => {
           to="/"
           className="text-4xl font-bold tracking-[1.08px] text-red-600 max-sm:text-3xl max-[400px]:text-2xl"
         >
-          Desert Rescue
+          Fix&Fuel
         </Link>
 
         {/* Icons */}
